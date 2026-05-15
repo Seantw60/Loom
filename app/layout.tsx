@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { ReactNode } from 'react';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
@@ -7,14 +6,14 @@ export const metadata: Metadata = {
   description: 'A spatio-temporal IDE for world-builders and fiction architects',
 };
 
-interface RootLayoutProps {
-  children: ReactNode;
-}
-
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="bg-white text-gray-900 antialiased">
+      <body className="bg-slate-900 text-gray-100 antialiased">
         {children}
       </body>
     </html>
