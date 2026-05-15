@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Loom custom styles */
+
+/* Animation utilities */
+@layer utilities {
+  .fade-in {
+    @apply animate-fade-in;
+  }
+
+  .slide-in-right {
+    @apply animate-paneSlideIn;
+  }
+
+  .ribbon-appear {
+    @apply animate-ribbonSlide;
+  }
+
+  /* Ghost UI - subtle shadows and borders */
+  .ghost-card {
+    @apply rounded-lg border border-gray-200 bg-white shadow-sm;
+  }
+
+  .ghost-card-hover {
+    @apply transition-all duration-200 hover:shadow-md hover:border-gray-300;
+  }
+}
+
+/* Base styling */
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  @apply bg-white text-gray-900;
+}
+
+/* Typography */
+h1 {
+  @apply text-4xl font-bold tracking-tight;
+}
+
+h2 {
+  @apply text-3xl font-semibold tracking-tight;
+}
+
+h3 {
+  @apply text-2xl font-semibold;
+}
+
+/* Scrollbar styling (optional) */
+::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600;
+}
