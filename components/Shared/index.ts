@@ -1,3 +1,3 @@
 // Shared: Global Components
 // Re-export components from this directory
-export {};
+export { default as RichTextEditor } from './RichTextEditor';
