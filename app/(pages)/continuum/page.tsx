@@ -101,7 +101,7 @@ export default function ContinuumPage() {
   const [unfurled, setUnfurled] = useState(false);
   const [hoveredRibbon, setHoveredRibbon] = useState<number | null>(null);
   const [focusedRibbon, setFocusedRibbon] = useState<number | null>(null);
-  const [hoveredEdgeRibbon, setHoveredEdgeRibbon] = useState<number | null>(null);
+  const [hoveredMainBraidEdge, setHoveredMainBraidEdge] = useState(false);
   const [selectedNode, setSelectedNode] = useState<{ ribbon: string; node: string; nodeId: string } | null>(null);
   const [hoveredNode, setHoveredNode] = useState<{ ribbon: number; nodeId: string } | null>(null);
   const [nodes, setNodes] = useState<LoreNode[]>([]);
@@ -326,9 +326,9 @@ export default function ContinuumPage() {
     }
   }
 
-  function openArcEditor(ribbonType: string) {
+  function openArcEditor() {
     if (!projectId) return;
-    router.push(`/chapters?projectId=${encodeURIComponent(projectId)}&arc=${encodeURIComponent(ribbonType)}`);
+    router.push(`/arcs?projectId=${encodeURIComponent(projectId)}`);
   }
 
   return (
@@ -432,9 +432,38 @@ export default function ContinuumPage() {
                 setHoveredRibbon(null);
                 setFocusedRibbon(null);
                 setSelectedNode(null);
+                setHoveredMainBraidEdge(false);
               }
             }}
           >
+            {!unfurled && (
+              <motion.button
+                type="button"
+                onMouseEnter={() => setHoveredMainBraidEdge(true)}
+                onMouseLeave={() => setHoveredMainBraidEdge(false)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  openArcEditor();
+                }}
+                className="absolute right-0 top-1/2 z-20 flex h-16 w-48 -translate-y-1/2 items-center justify-end pr-3"
+              >
+                <motion.div
+                  initial={false}
+                  animate={{
+                    opacity: hoveredMainBraidEdge ? 1 : 0,
+                    x: hoveredMainBraidEdge ? 0 : 16,
+                    scale: hoveredMainBraidEdge ? 1 : 0.92,
+                  }}
+                  transition={{ duration: 0.24, ease: 'easeOut' }}
+                  className="pointer-events-none flex items-center gap-3"
+                  style={{ textShadow: '0 0 16px rgba(255,255,255,0.95)' }}
+                >
+                  <span className="text-[10px] uppercase tracking-[0.18em] text-white/90">Enter Arcs</span>
+                  <span className="text-6xl leading-none text-white">→</span>
+                </motion.div>
+              </motion.button>
+            )}
+
             {RIBBON_CONFIG.map((ribbon, i) => (
               <motion.div
                 key={ribbon.type}
@@ -481,7 +510,6 @@ export default function ContinuumPage() {
                   if (unfurled && focusedRibbon === null) {
                     setHoveredRibbon((current) => (current === i ? null : current));
                   }
-                  setHoveredEdgeRibbon((current) => (current === i ? null : current));
                 }}
                 className={`absolute left-0 right-0 flex items-center ${unfurled ? '' : 'cursor-pointer'}`}
                 style={{ originX: 0 }}
@@ -768,35 +796,6 @@ export default function ContinuumPage() {
                     </motion.button>
                   )}
 
-                  {unfurled && (focusedRibbon === null || focusedRibbon === i) && (
-                    <motion.button
-                      type="button"
-                      onMouseEnter={() => setHoveredEdgeRibbon(i)}
-                      onMouseLeave={() => setHoveredEdgeRibbon((current) => (current === i ? null : current))}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        openArcEditor(ribbon.type);
-                      }}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 h-12 w-40 flex items-center justify-end pr-2"
-                    >
-                      <motion.div
-                        initial={false}
-                        animate={{
-                          opacity: hoveredEdgeRibbon === i ? 1 : 0,
-                          x: hoveredEdgeRibbon === i ? 0 : 14,
-                          scale: hoveredEdgeRibbon === i ? 1 : 0.9,
-                        }}
-                        transition={{ duration: 0.22, ease: 'easeOut' }}
-                        className="pointer-events-none flex items-center gap-2"
-                        style={{
-                          textShadow: '0 0 14px rgba(255,255,255,0.9)',
-                        }}
-                      >
-                        <span className="text-[10px] uppercase tracking-[0.18em] text-white/90">Enter Arc</span>
-                        <span className="text-5xl leading-none text-white">→</span>
-                      </motion.div>
-                    </motion.button>
-                  )}
                 </div>
                     </>
                   );

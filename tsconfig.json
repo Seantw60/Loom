@@ -31,7 +31,7 @@
         "./*"
       ]
     },
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "allowJs": true,
     "incremental": true,
     "plugins": [

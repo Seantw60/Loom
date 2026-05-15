@@ -1,34 +1,7 @@
 import { auth } from '@/auth';
 import { prisma } from '@/lib/db/prisma';
+import { buildArcPrefix, readArcFromTitle, stripArcPrefix, withArcPrefix } from '@/lib/story-arcs';
 import { NextResponse } from 'next/server';
-
-const ARC_PREFIX = '[ARC:';
-
-function buildArcPrefix(arc: string) {
-  return `${ARC_PREFIX}${arc}] `;
-}
-
-function stripArcPrefix(title: string | null) {
-  if (!title) return '';
-  if (!title.startsWith(ARC_PREFIX)) return title;
-
-  const closingIndex = title.indexOf('] ');
-  if (closingIndex < 0) return title;
-  return title.slice(closingIndex + 2);
-}
-
-function readArcFromTitle(title: string | null) {
-  if (!title || !title.startsWith(ARC_PREFIX)) return null;
-  const closingIndex = title.indexOf('] ');
-  if (closingIndex < 0) return null;
-  return title.slice(ARC_PREFIX.length, closingIndex);
-}
-
-function withArcPrefix(title: string, arc?: string) {
-  const cleanTitle = title.trim() || 'Untitled Chapter';
-  if (!arc) return cleanTitle;
-  return `${buildArcPrefix(arc)}${cleanTitle}`;
-}
 
 // GET /api/chapters?projectId=xxx&arc=Character
 export async function GET(req: Request) {
