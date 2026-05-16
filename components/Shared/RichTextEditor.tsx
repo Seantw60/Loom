@@ -390,7 +390,7 @@ export default function RichTextEditor({
 
   return (
     <div className="mt-1.5 rounded-lg border border-slate-600 bg-slate-800/70 normal-case tracking-normal">
-      <div className="space-y-2 border-b border-slate-700/90 p-2">
+      <div className="sticky top-0 z-10 space-y-2 border-b border-slate-700/90 bg-slate-800 p-2 rounded-t-lg">
         <div className={toolbarGroupClass}>
           <p className="px-1 text-[10px] uppercase tracking-[0.14em] text-slate-500">Typography</p>
           <select

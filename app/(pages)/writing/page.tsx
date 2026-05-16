@@ -259,9 +259,9 @@ function WritingPageInner() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-900 px-4 py-6 md:px-6 xl:px-8">
-      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mx-auto flex w-full max-w-[120rem] flex-col">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-5">
+    <main className="min-h-screen xl:h-screen xl:overflow-hidden bg-slate-900 px-4 py-6 md:px-6 xl:px-8 flex flex-col">
+      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mx-auto flex w-full max-w-[120rem] flex-col flex-1 min-h-0">
+        <div className="shrink-0 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-5">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Main Writing Page</p>
             <h1 className="mt-1 text-2xl font-bold text-white">Writing Studio</h1>
@@ -305,7 +305,7 @@ function WritingPageInner() {
         </div>
 
         <div
-          className={`mt-6 grid gap-6 ${displayArcPanel && displayNodePanel
+          className={`mt-6 flex-1 min-h-0 xl:overflow-hidden xl:[grid-template-rows:1fr] grid gap-6 ${displayArcPanel && displayNodePanel
             ? 'xl:grid-cols-[280px_minmax(0,1fr)_320px]'
             : displayArcPanel
               ? 'xl:grid-cols-[280px_minmax(0,1fr)]'
@@ -314,7 +314,7 @@ function WritingPageInner() {
                 : 'xl:grid-cols-[minmax(0,1fr)]'}`}
         >
           {displayArcPanel && (
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 xl:max-h-[calc(100vh-10rem)] xl:overflow-auto">
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 xl:h-full xl:overflow-y-auto">
             <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Story Arcs</p>
             <form onSubmit={handleCreateArc} className="mt-4 flex gap-2">
               <input type="text" value={newArcName} onChange={(event) => setNewArcName(event.target.value)} placeholder="Arc 2" className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white" />
@@ -342,8 +342,8 @@ function WritingPageInner() {
           </section>
           )}
 
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 xl:min-h-[calc(100vh-10rem)] xl:overflow-hidden">
-            <div className="flex h-full flex-col">
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 xl:h-full xl:overflow-y-auto">
+            <div className="flex flex-col">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Current Arc</p>
@@ -376,16 +376,26 @@ function WritingPageInner() {
                     placeholder="Give this chapter a real title..."
                   />
                 </div>
-                <div className="mt-4 flex-1 overflow-hidden">
+                <div className="mt-4">
                   <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Chapter Draft</p>
                   <RichTextEditor
                     value={draftContent}
                     onChange={setDraftContent}
                     placeholder="Write the chapter here, then drop major concepts onto the Continuum as nodes..."
-                    minHeightClassName={minimalView ? 'min-h-[calc(100vh-18rem)]' : 'min-h-[32rem] xl:min-h-[calc(100vh-24rem)]'}
+                    minHeightClassName={minimalView ? 'min-h-[50vh]' : 'min-h-[60vh]'}
                   />
                 </div>
-                <div className="mt-5 flex justify-end border-t border-slate-800/80 pt-4">
+                <div className="mt-5 flex items-center justify-between border-t border-slate-800/80 pt-4">
+                  <Link
+                    href={projectId ? `/chapters?projectId=${encodeURIComponent(projectId)}&arc=${encodeURIComponent(selectedArc ?? '')}` : '/chapters'}
+                    className="flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-800/60 px-4 py-2 text-sm text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    Chapter Preview
+                  </Link>
                   <motion.button type="button" whileHover={{ scale: saving ? 1 : 1.03 }} whileTap={{ scale: saving ? 1 : 0.97 }} onClick={handleSaveChapter} disabled={saving || !draftTitle.trim()} className="rounded-lg border border-cyan-500/60 bg-cyan-600/20 px-4 py-2 text-sm text-cyan-100 disabled:opacity-50">{saving ? 'Saving...' : 'Save Chapter'}</motion.button>
                 </div>
               </>
@@ -396,7 +406,7 @@ function WritingPageInner() {
           </section>
 
           {displayNodePanel && (
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 xl:max-h-[calc(100vh-10rem)] xl:overflow-auto">
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 xl:h-full xl:overflow-y-auto">
             <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Drop-In Continuum Node</p>
             <p className="mt-1 text-sm text-slate-400">Capture a story concept while drafting and send it straight onto the main Continuum.</p>
             <form onSubmit={handleDropNode} className="mt-4 space-y-4">

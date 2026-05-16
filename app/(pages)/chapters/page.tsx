@@ -494,7 +494,7 @@ function ChapterEditorPageInner() {
                   <div className="mt-5 min-h-[28rem] overflow-auto rounded-xl border border-slate-700 bg-slate-950/60 px-6 py-5">
                     {selectedChapter.content ? (
                       <div
-                        className="prose prose-invert prose-sm max-w-none text-slate-300 leading-relaxed"
+                        className="chapter-content max-w-none"
                         dangerouslySetInnerHTML={{ __html: selectedChapter.content }}
                       />
                     ) : (
