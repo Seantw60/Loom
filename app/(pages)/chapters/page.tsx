@@ -73,7 +73,7 @@ export default function ChapterEditorPage() {
   const [hydratedChapterId, setHydratedChapterId] = useState<string | null>(null);
   const [showBraidView, setShowBraidView] = useState(true);
   const [showChapterList, setShowChapterList] = useState(true);
-  const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
+  const [_expandedGroups, _setExpandedGroups] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
