@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import RichTextEditor from '@/components/Shared/RichTextEditor';
 
@@ -184,7 +184,6 @@ function buildBranchRibbonPath(sourceX: number, sourceY: number, endX: number, e
 }
 
 function ContinuumPageInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
   const pointerX = useMotionValue(0);
@@ -754,11 +753,6 @@ function ContinuumPageInner() {
     } finally {
       setDeletingNode(false);
     }
-  }
-
-  function openArcEditor() {
-    if (!projectId) return;
-    router.push(`/arcs?projectId=${encodeURIComponent(projectId)}`);
   }
 
   function handleBackgroundMove(event: React.PointerEvent<HTMLElement>) {
