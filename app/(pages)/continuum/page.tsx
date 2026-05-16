@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import RichTextEditor from '@/components/Shared/RichTextEditor';
@@ -29,8 +30,12 @@ interface LoreNode {
 const MAX_VITALITY_NODES = 18;
 const LIFeless_RIBBON_COLOR = '#6b7280';
 const MAX_RIBBON_VITALITY_NODES = 4;
-const RIBBON_POSITION_MIN = 0.05;
-const RIBBON_POSITION_MAX = 0.95;
+const STANDARD_RIBBON_POSITION_MIN = 0.03;
+const STANDARD_RIBBON_POSITION_MAX = 0.97;
+const EXTENDED_RIBBON_POSITION_MIN = 0.005;
+const EXTENDED_RIBBON_POSITION_MAX = 0.995;
+const STANDARD_RIBBON_SVG_CLASS = 'absolute -left-[8%] -right-[8%] w-[116%] h-full';
+const EXTENDED_RIBBON_SVG_CLASS = 'absolute -left-[20%] -right-[20%] w-[140%] h-full';
 const UNFURLED_RIBBON_GAP = 132;
 const UNFURLED_RIBBON_Y_OFFSET = 30;
 const UNFURLED_VIEWBOX_HEIGHT = RIBBON_CONFIG.length * UNFURLED_RIBBON_GAP + 52;
@@ -192,6 +197,10 @@ function ContinuumPageInner() {
   const starY = useTransform(parallaxY, [-1, 0, 1], [-14, 0, 14]);
 
   const [unfurled, setUnfurled] = useState(false);
+  const [isExtendedRibbonLength, setIsExtendedRibbonLength] = useState(true);
+  const ribbonPositionMin = isExtendedRibbonLength ? EXTENDED_RIBBON_POSITION_MIN : STANDARD_RIBBON_POSITION_MIN;
+  const ribbonPositionMax = isExtendedRibbonLength ? EXTENDED_RIBBON_POSITION_MAX : STANDARD_RIBBON_POSITION_MAX;
+  const ribbonSvgSpanClass = isExtendedRibbonLength ? EXTENDED_RIBBON_SVG_CLASS : STANDARD_RIBBON_SVG_CLASS;
   const [hoveredRibbon, setHoveredRibbon] = useState<number | null>(null);
   const [focusedRibbon, setFocusedRibbon] = useState<number | null>(null);
   const [hoveredMainBraidEdge, setHoveredMainBraidEdge] = useState(false);
@@ -361,14 +370,14 @@ function ContinuumPageInner() {
       const ribbonIndex = nodeRibbonIndex.get(originNode.id);
       if (ribbonIndex === undefined) continue;
 
-      const sourceX = Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, originNode.position)) * 100;
+      const sourceX = Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, originNode.position)) * 100;
       const sourceY = ribbonIndex * UNFURLED_RIBBON_GAP + UNFURLED_RIBBON_Y_OFFSET;
 
       const laneKey = `${originNode.id}`;
       const lane = branchLaneCount.get(laneKey) ?? 0;
       branchLaneCount.set(laneKey, lane + 1);
 
-      const endX = Math.max(sourceX + 20 + lane * 5, Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, branchNode.position)) * 100);
+      const endX = Math.max(sourceX + 20 + lane * 5, Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, branchNode.position)) * 100);
       const endY = Math.max(8, sourceY - 28 - lane * 18);
 
       map.set(branchNode.id, { endX, endY, ribbonIndex });
@@ -401,7 +410,7 @@ function ContinuumPageInner() {
       const relatedIds = sourceNode.relatedNodeIds ?? [];
       if (relatedIds.length === 0) continue;
 
-      const sourcePct = Math.max(0.05, Math.min(0.95, sourceNode.position)) * 100;
+      const sourcePct = Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, sourceNode.position)) * 100;
       const sourceY = sourceRibbonIndex * UNFURLED_RIBBON_GAP + UNFURLED_RIBBON_Y_OFFSET;
 
       for (const targetId of relatedIds) {
@@ -417,7 +426,7 @@ function ContinuumPageInner() {
 
         if (targetRibbonIndex !== undefined) {
           // Target is a main ribbon node
-          targetPct = Math.max(0.05, Math.min(0.95, targetNode.position)) * 100;
+          targetPct = Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, targetNode.position)) * 100;
           targetY = targetRibbonIndex * UNFURLED_RIBBON_GAP + UNFURLED_RIBBON_Y_OFFSET;
         } else {
           // Check if target is a branch node
@@ -477,14 +486,14 @@ function ContinuumPageInner() {
       const ribbonIndex = nodeRibbonIndex.get(originNode.id);
       if (ribbonIndex === undefined) continue;
 
-      const sourceX = Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, originNode.position)) * 100;
+      const sourceX = Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, originNode.position)) * 100;
       const sourceY = ribbonIndex * UNFURLED_RIBBON_GAP + UNFURLED_RIBBON_Y_OFFSET;
 
       const laneKey = `${originNode.id}`;
       const lane = branchLaneCount.get(laneKey) ?? 0;
       branchLaneCount.set(laneKey, lane + 1);
 
-      const endX = Math.max(sourceX + 20 + lane * 5, Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, branchNode.position)) * 100);
+      const endX = Math.max(sourceX + 20 + lane * 5, Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, branchNode.position)) * 100);
       const endY = Math.max(8, sourceY - 28 - lane * 18);
 
       branches.push({
@@ -507,21 +516,21 @@ function ContinuumPageInner() {
   function generateRandomRibbonPosition(type: string, excludedNodeId?: string) {
     const occupiedPositions = nodes
       .filter((node) => node.type === type && node.id !== excludedNodeId)
-      .map((node) => Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, node.position)));
+      .map((node) => Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, node.position)));
 
     if (occupiedPositions.length === 0) {
-      return RIBBON_POSITION_MIN + Math.random() * (RIBBON_POSITION_MAX - RIBBON_POSITION_MIN);
+      return ribbonPositionMin + Math.random() * (ribbonPositionMax - ribbonPositionMin);
     }
 
-    const range = RIBBON_POSITION_MAX - RIBBON_POSITION_MIN;
+    const range = ribbonPositionMax - ribbonPositionMin;
     const maxPossibleGap = range / (occupiedPositions.length + 1);
     const minGap = Math.min(0.03, Math.max(0.008, maxPossibleGap * 0.72));
 
-    let bestCandidate = RIBBON_POSITION_MIN;
+    let bestCandidate = ribbonPositionMin;
     let bestDistance = -1;
 
     for (let attempt = 0; attempt < 400; attempt += 1) {
-      const candidate = RIBBON_POSITION_MIN + Math.random() * range;
+      const candidate = ribbonPositionMin + Math.random() * range;
       let nearestDistance = Infinity;
 
       for (const occupied of occupiedPositions) {
@@ -564,7 +573,7 @@ function ContinuumPageInner() {
       type: activeNode.type,
       name: activeNode.name,
       content: activeNode.content ?? '',
-      position: Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, activeNode.position)),
+      position: Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, activeNode.position)),
     });
     setShowCreateNode(true);
   }
@@ -580,7 +589,7 @@ function ContinuumPageInner() {
       type: originNode.type,
       name: '',
       content: '',
-      position: Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, originNode.position)),
+      position: Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, originNode.position)),
     });
     setShowCreateNode(true);
   }
@@ -588,10 +597,10 @@ function ContinuumPageInner() {
   function generateBranchRibbonPosition(originNode: LoreNode, excludedNodeId?: string) {
     const occupiedPositions = nodes
       .filter((node) => node.type === originNode.type && node.id !== excludedNodeId)
-      .map((node) => Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, node.position)));
+      .map((node) => Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, node.position)));
 
-    const range = RIBBON_POSITION_MAX - RIBBON_POSITION_MIN;
-    const originPosition = Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, originNode.position));
+    const range = ribbonPositionMax - ribbonPositionMin;
+    const originPosition = Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, originNode.position));
     const maxPossibleGap = range / (occupiedPositions.length + 1);
     const minGap = Math.min(0.03, Math.max(0.008, maxPossibleGap * 0.72));
 
@@ -602,8 +611,8 @@ function ContinuumPageInner() {
       const direction = 1;
       const distance = 0.08 + Math.random() * 0.26;
       const candidate = Math.max(
-        RIBBON_POSITION_MIN,
-        Math.min(RIBBON_POSITION_MAX, originPosition + direction * distance),
+        ribbonPositionMin,
+        Math.min(ribbonPositionMax, originPosition + direction * distance),
       );
 
       let nearestDistance = Infinity;
@@ -646,7 +655,7 @@ function ContinuumPageInner() {
         ? branchOriginNode
           ? generateBranchRibbonPosition(branchOriginNode, editingNodeId ?? undefined)
           : generateRandomRibbonPosition(newNode.type, editingNodeId ?? undefined)
-        : Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, newNode.position));
+        : Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, newNode.position));
 
       const payload = {
         ...(nodeFormMode === 'edit' ? { id: editingNodeId } : {}),
@@ -855,6 +864,15 @@ function ContinuumPageInner() {
         </div>
         <div className="flex items-center gap-4">
           <motion.button
+            type="button"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => setIsExtendedRibbonLength((current) => !current)}
+            className={`px-4 py-2 rounded-lg border text-sm transition-colors ${isExtendedRibbonLength ? 'border-cyan-500/70 bg-cyan-600/15 text-cyan-100' : 'border-slate-600 text-slate-300 hover:border-slate-500 hover:text-white'}`}
+          >
+            Ribbon Length: {isExtendedRibbonLength ? 'Long' : 'Standard'}
+          </motion.button>
+          <motion.button
             whileHover={{ scale: projectId ? 1.04 : 1 }}
             whileTap={{ scale: projectId ? 0.96 : 1 }}
             onClick={openCreateNodeModal}
@@ -940,33 +958,7 @@ function ContinuumPageInner() {
               }
             }}
           >
-            {!unfurled && (
-              <motion.button
-                type="button"
-                onMouseEnter={() => setHoveredMainBraidEdge(true)}
-                onMouseLeave={() => setHoveredMainBraidEdge(false)}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  openArcEditor();
-                }}
-                className="absolute right-0 top-1/2 z-20 flex h-16 w-48 -translate-y-1/2 items-center justify-end pr-3"
-              >
-                <motion.div
-                  initial={false}
-                  animate={{
-                    opacity: hoveredMainBraidEdge ? 1 : 0,
-                    x: hoveredMainBraidEdge ? 0 : 16,
-                    scale: hoveredMainBraidEdge ? 1 : 0.92,
-                  }}
-                  transition={{ duration: 0.24, ease: 'easeOut' }}
-                  className="pointer-events-none flex items-center gap-3"
-                  style={{ textShadow: '0 0 16px rgba(255,255,255,0.95)' }}
-                >
-                  <span className="text-[10px] uppercase tracking-[0.18em] text-white/90">Enter Arcs</span>
-                  <span className="text-6xl leading-none text-white">→</span>
-                </motion.div>
-              </motion.button>
-            )}
+
 
             {unfurled && focusedRibbon === null && relationGraph.paths.length > 0 && (
               <svg
@@ -1418,7 +1410,8 @@ function ContinuumPageInner() {
                       <motion.svg
                         viewBox={`0 0 ${BRAID_PATH_WIDTH} 48`}
                         preserveAspectRatio="none"
-                        className="absolute -left-[7%] -right-[7%] w-[114%] h-full"
+                        className={ribbonSvgSpanClass}
+                        style={{ pointerEvents: 'none' }}
                         initial={false}
                       >
                         <motion.path
@@ -1568,7 +1561,7 @@ function ContinuumPageInner() {
 
                   {/* Nodes */}
                   {ribbonNodes.map((node, j) => {
-                    const pct = Math.max(0.05, Math.min(0.95, node.position));
+                    const pct = Math.max(ribbonPositionMin, Math.min(ribbonPositionMax, node.position));
                     const isSelected = selectedNode?.ribbon === ribbon.type && selectedNode?.nodeId === node.id;
                     const isHovered = hoveredNode?.ribbon === i && hoveredNode?.nodeId === node.id;
                     const showInOverview = focusedRibbon === null && relationGraph.connectedNodeIds.has(node.id);
@@ -1680,6 +1673,73 @@ function ContinuumPageInner() {
               </motion.div>
             ))}
           </div>
+
+          {/* Enter Arcs — below the braid, always visible */}
+          {!unfurled && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="mt-10 flex justify-center"
+            >
+              <Link
+                href={projectId ? `/arcs?projectId=${encodeURIComponent(projectId)}` : '/arcs'}
+                onMouseEnter={() => setHoveredMainBraidEdge(true)}
+                onMouseLeave={() => setHoveredMainBraidEdge(false)}
+                className="group relative flex items-center gap-5 rounded-2xl border border-cyan-500/40 bg-slate-900/80 px-10 py-5 transition-colors hover:border-cyan-400/70 hover:bg-slate-800/90"
+                style={{ boxShadow: hoveredMainBraidEdge ? '0 0 40px rgba(103,232,249,0.22), 0 0 80px rgba(103,232,249,0.1)' : '0 0 22px rgba(103,232,249,0.1)' }}
+              >
+                {/* Background glow */}
+                <motion.div
+                  className="pointer-events-none absolute inset-0 rounded-2xl"
+                  animate={{ opacity: hoveredMainBraidEdge ? 0.7 : 0.35 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    background: 'radial-gradient(ellipse at 50% 50%, rgba(103,232,249,0.12) 0%, transparent 70%)',
+                    filter: 'blur(8px)',
+                  }}
+                />
+
+                {/* Left: icon + label stack */}
+                <div className="relative flex flex-col gap-1">
+                  <span
+                    className="text-[10px] uppercase tracking-[0.3em] text-cyan-400/70"
+                  >
+                    Story Structure
+                  </span>
+                  <span
+                    className="text-2xl font-bold tracking-wide text-white"
+                    style={{ textShadow: '0 0 18px rgba(103,232,249,0.55)' }}
+                  >
+                    Enter Arcs
+                  </span>
+                  <div className="mt-1 flex items-center gap-1.5">
+                    {[0, 0.18, 0.36].map((delay) => (
+                      <motion.span
+                        key={delay}
+                        className="block h-1 w-5 rounded-full bg-cyan-400/60"
+                        animate={{ scaleX: [0.5, 1, 0.5], opacity: [0.35, 1, 0.35] }}
+                        transition={{ duration: 1.4, ease: 'easeInOut', repeat: Infinity, delay }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right: animated arrow */}
+                <div className="relative ml-4 flex items-center">
+                  <motion.span
+                    animate={{ x: hoveredMainBraidEdge ? [0, 7, 0] : [0, 4, 0] }}
+                    transition={{ duration: 0.9, ease: 'easeInOut', repeat: Infinity }}
+                    className="text-5xl font-light leading-none text-cyan-300"
+                    style={{ textShadow: '0 0 16px rgba(103,232,249,1), 0 0 36px rgba(103,232,249,0.5)' }}
+                  >
+                    →
+                  </motion.span>
+                </div>
+              </Link>
+            </motion.div>
+          )}
         </div>
       </div>
 

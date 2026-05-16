@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import '@/styles/globals.css';
+import { MusicPlayer } from '@/components/FocusManuscript';
 
 export const metadata: Metadata = {
   title: 'Loom - The Narrative Continuum',
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-slate-900 text-gray-100 antialiased">
         {children}
+        <MusicPlayer />
       </body>
     </html>
   );
