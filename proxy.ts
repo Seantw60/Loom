@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import authConfig from '@/auth.config';
 import { NextResponse } from 'next/server';
 
-const PROTECTED = ['/dashboard', '/continuum', '/lore', '/manuscript'];
+const PROTECTED = ['/dashboard', '/continuum', '/lore', '/manuscript', '/writing', '/arcs', '/chapters'];
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
@@ -13,6 +13,11 @@ export default auth((req) => {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Unauthenticated users at root go straight to login
+  if (pathname === '/' && !req.auth) {
+    return NextResponse.redirect(new URL('/login', req.url));
   }
 
   // Redirect authenticated users away from login/home
