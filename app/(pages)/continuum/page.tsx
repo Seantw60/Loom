@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import RichTextEditor from '@/components/Shared/RichTextEditor';
@@ -178,7 +178,7 @@ function buildBranchRibbonPath(sourceX: number, sourceY: number, endX: number, e
   ].join(' ');
 }
 
-export default function ContinuumPage() {
+function ContinuumPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
@@ -312,7 +312,7 @@ export default function ContinuumPage() {
   );
   const nodeRibbonIndex = useMemo(() => {
     const map = new Map<string, number>();
-    RIBBON_CONFIG.forEach((ribbon, ribbonIndex) => {
+    RIBBON_CONFIG.forEach((_ribbon, ribbonIndex) => {
       nodesByRibbon[ribbonIndex]?.forEach((node) => {
         if (!map.has(node.id)) {
           map.set(node.id, ribbonIndex);
@@ -1932,5 +1932,13 @@ export default function ContinuumPage() {
         )}
       </motion.div>
     </main>
+  );
+}
+
+export default function ContinuumPage() {
+  return (
+    <Suspense>
+      <ContinuumPageInner />
+    </Suspense>
   );
 }

@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import RichTextEditor from '@/components/Shared/RichTextEditor';
 import { getArcColor } from '@/lib/story-arcs';
 
 interface ChapterRecord {
@@ -52,7 +51,7 @@ function buildArcPath(phase: number, width = 1400, centerY = 36, amplitude = 9, 
   return `M ${points.join(' L ')}`;
 }
 
-export default function ChapterEditorPage() {
+function ChapterEditorPageInner() {
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
   const arcParam = searchParams.get('arc');
@@ -60,20 +59,14 @@ export default function ChapterEditorPage() {
 
   const [chapters, setChapters] = useState<ChapterRecord[]>([]);
   const [fetching, setFetching] = useState(false);
-  const [loadingSave, setLoadingSave] = useState(false);
   const [loadingCreate, setLoadingCreate] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
-  const [draftTitle, setDraftTitle] = useState('');
-  const [draftContent, setDraftContent] = useState('');
-  const [editorDirty, setEditorDirty] = useState(false);
-  const [hydratedChapterId, setHydratedChapterId] = useState<string | null>(null);
   const [showBraidView, setShowBraidView] = useState(true);
   const [showChapterList, setShowChapterList] = useState(true);
-  const [_expandedGroups, _setExpandedGroups] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -129,24 +122,6 @@ export default function ChapterEditorPage() {
     [chapters, selectedChapterId],
   );
 
-  useEffect(() => {
-    if (!selectedChapter) {
-      setDraftTitle('');
-      setDraftContent('');
-      setEditorDirty(false);
-      setHydratedChapterId(null);
-      return;
-    }
-
-    const switchedChapter = hydratedChapterId !== selectedChapter.id;
-    if (switchedChapter || !editorDirty) {
-      setDraftTitle(selectedChapter.title ?? '');
-      setDraftContent(selectedChapter.content ?? '');
-      setEditorDirty(false);
-      setHydratedChapterId(selectedChapter.id);
-    }
-  }, [selectedChapter, editorDirty, hydratedChapterId]);
-
   const arcVitality = Math.min(chapters.length / MAX_ARC_VITALITY_CHAPTERS, 1);
   const arcVibrance = Math.min(1, arcVitality / 0.5);
   const arcColor = arc ? mixHexColors(ARC_GRAY, getArcColor(arc), arcVibrance) : ARC_GRAY;
@@ -185,43 +160,6 @@ export default function ChapterEditorPage() {
       setError(message);
     } finally {
       setLoadingCreate(false);
-    }
-  }
-
-  async function handleSaveChapter() {
-    if (!projectId || !selectedChapter) return;
-    setLoadingSave(true);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const res = await fetch('/api/chapters', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: selectedChapter.id,
-          projectId,
-          arc,
-          title: draftTitle,
-          content: draftContent,
-          order: selectedChapter.order,
-        }),
-      });
-
-      const payload = await res.json() as ChapterRecord | { error?: string };
-      if (!res.ok) {
-        throw new Error('error' in payload && payload.error ? payload.error : 'Unable to save chapter.');
-      }
-
-      const saved = payload as ChapterRecord;
-      setChapters((current) => current.map((chapter) => (chapter.id === saved.id ? saved : chapter)));
-      setEditorDirty(false);
-      setSuccess(`${saved.title} saved.`);
-    } catch (saveError) {
-      const message = saveError instanceof Error ? saveError.message : 'Unable to save chapter.';
-      setError(message);
-    } finally {
-      setLoadingSave(false);
     }
   }
 
@@ -517,79 +455,65 @@ export default function ChapterEditorPage() {
           </motion.section>
 
           <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
-            {selectedChapter ? (
-              <>
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Chapter Editor</p>
-                  <AnimatePresence>
-                    {editorDirty && (
-                      <motion.span
-                        initial={{ opacity: 0, y: -4, scale: 0.96 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -4, scale: 0.96 }}
-                        transition={{ duration: 0.2, ease: 'easeOut' }}
-                        className="rounded-full border border-amber-400/50 bg-amber-500/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-amber-200"
+            <AnimatePresence mode="wait">
+              {selectedChapter ? (
+                <motion.div
+                  key={selectedChapter.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Chapter Preview</p>
+                      <h2 className="mt-1 text-xl font-semibold text-white">{selectedChapter.title || `Chapter ${selectedChapter.order}`}</h2>
+                      <p className="mt-1 text-xs text-slate-500">Chapter {selectedChapter.order} · {selectedChapter.content ? `${selectedChapter.content.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length} words` : 'No content yet'}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={projectId ? `/writing?projectId=${encodeURIComponent(projectId)}&arc=${encodeURIComponent(arc)}` : '/writing'}
+                        className="flex items-center gap-2 rounded-lg border border-cyan-500/60 bg-cyan-600/15 px-4 py-2 text-sm text-cyan-100 transition-colors hover:bg-cyan-600/25"
                       >
-                        Unsaved Changes
-                      </motion.span>
+                        <span>Open in Writing Page</span>
+                        <span className="text-base leading-none">→</span>
+                      </Link>
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: loadingDelete ? 1 : 1.03 }}
+                        whileTap={{ scale: loadingDelete ? 1 : 0.97 }}
+                        onClick={handleDeleteChapter}
+                        disabled={loadingDelete}
+                        className="rounded-lg border border-rose-500/60 px-3 py-2 text-sm text-rose-200 disabled:opacity-50"
+                      >
+                        {loadingDelete ? 'Deleting...' : 'Delete'}
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 min-h-[28rem] overflow-auto rounded-xl border border-slate-700 bg-slate-950/60 px-6 py-5">
+                    {selectedChapter.content ? (
+                      <div
+                        className="prose prose-invert prose-sm max-w-none text-slate-300 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: selectedChapter.content }}
+                      />
+                    ) : (
+                      <p className="text-slate-500 italic">This chapter has no content yet. Open it in the Writing Page to start writing.</p>
                     )}
-                  </AnimatePresence>
-                </div>
-                <div className="mt-4">
-                  <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Title</p>
-                  <input
-                    type="text"
-                    value={draftTitle}
-                    onChange={(event) => {
-                      setDraftTitle(event.target.value);
-                      setEditorDirty(true);
-                    }}
-                    className="mt-1.5 w-full rounded-xl border border-slate-600 bg-slate-800 px-4 py-3 text-lg normal-case tracking-normal text-white"
-                    placeholder="Name this chapter..."
-                  />
-                </div>
-
-                <div className="mt-4">
-                  <p className="text-xs uppercase tracking-[0.12em] text-slate-400">Chapter Content</p>
-                  <RichTextEditor
-                    value={draftContent}
-                    onChange={(value) => {
-                      setDraftContent(value);
-                      setEditorDirty(true);
-                    }}
-                    placeholder="Write your chapter. Link lore, shape scenes, and build this arc braid..."
-                    minHeightClassName="min-h-[30rem]"
-                  />
-                </div>
-
-                <div className="mt-5 flex items-center justify-end gap-3">
-                  <motion.button
-                    type="button"
-                    whileHover={{ scale: loadingDelete ? 1 : 1.03 }}
-                    whileTap={{ scale: loadingDelete ? 1 : 0.97 }}
-                    onClick={handleDeleteChapter}
-                    disabled={loadingDelete}
-                    className="rounded-lg border border-rose-500/60 px-4 py-2 text-sm text-rose-200 disabled:opacity-50"
-                  >
-                    {loadingDelete ? 'Deleting...' : 'Delete Chapter'}
-                  </motion.button>
-                  <motion.button
-                    type="button"
-                    whileHover={{ scale: loadingSave ? 1 : 1.03 }}
-                    whileTap={{ scale: loadingSave ? 1 : 0.97 }}
-                    onClick={handleSaveChapter}
-                    disabled={loadingSave || !draftTitle.trim()}
-                    className="rounded-lg border border-cyan-500/70 bg-cyan-600/20 px-4 py-2 text-sm text-cyan-100 disabled:opacity-50"
-                  >
-                    {loadingSave ? 'Saving...' : 'Save Chapter'}
-                  </motion.button>
-                </div>
-              </>
-            ) : (
-              <div className="flex min-h-[320px] items-center justify-center text-slate-500">
-                Select or create a chapter to begin editing this arc.
-              </div>
-            )}
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex min-h-[320px] items-center justify-center text-slate-500"
+                >
+                  Select or create a chapter to preview it.
+                </motion.div>
+              )}
+            </AnimatePresence>
           </section>
         </motion.div>
 
@@ -608,5 +532,13 @@ export default function ChapterEditorPage() {
         </AnimatePresence>
       </motion.div>
     </main>
+  );
+}
+
+export default function ChapterEditorPage() {
+  return (
+    <Suspense>
+      <ChapterEditorPageInner />
+    </Suspense>
   );
 }

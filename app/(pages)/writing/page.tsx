@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -46,7 +46,7 @@ function mixHexColors(fromHex: string, toHex: string, amount: number) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-export default function WritingPage() {
+function WritingPageInner() {
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
   const requestedArc = searchParams.get('arc');
@@ -444,5 +444,13 @@ export default function WritingPage() {
         </AnimatePresence>
       </motion.div>
     </main>
+  );
+}
+
+export default function WritingPage() {
+  return (
+    <Suspense>
+      <WritingPageInner />
+    </Suspense>
   );
 }

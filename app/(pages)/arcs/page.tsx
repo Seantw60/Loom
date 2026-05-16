@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -47,7 +47,7 @@ function buildArcPath(phase: number, centerY: number, amplitude: number, segment
   return `M ${points.join(' L ')}`;
 }
 
-export default function ArcsPage() {
+function ArcsPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
@@ -379,5 +379,13 @@ export default function ArcsPage() {
         </AnimatePresence>
       </motion.div>
     </main>
+  );
+}
+
+export default function ArcsPage() {
+  return (
+    <Suspense>
+      <ArcsPageInner />
+    </Suspense>
   );
 }
