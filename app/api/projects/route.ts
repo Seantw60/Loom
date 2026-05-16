@@ -41,6 +41,17 @@ export async function POST(req: Request) {
 
   if (!name?.trim()) return NextResponse.json({ error: 'Name is required.' }, { status: 400 });
 
+  // Ensure user exists in database (e.g., after db reset)
+  await prisma.user.upsert({
+    where: { id: session.user.id },
+    update: {},
+    create: {
+      id: session.user.id,
+      email: session.user.email || `user-${session.user.id}@loom.local`,
+      name: session.user.name,
+    },
+  });
+
   const project = await prisma.project.create({
     data: {
       userId: session.user.id,

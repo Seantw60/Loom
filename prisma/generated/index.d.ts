@@ -44,6 +44,11 @@ export type Project = $Result.DefaultSelection<Prisma.$ProjectPayload>
  */
 export type LoreNode = $Result.DefaultSelection<Prisma.$LoreNodePayload>
 /**
+ * Model NodeRelation
+ * 
+ */
+export type NodeRelation = $Result.DefaultSelection<Prisma.$NodeRelationPayload>
+/**
  * Model Chapter
  * 
  */
@@ -259,6 +264,16 @@ export class PrismaClient<
     * ```
     */
   get loreNode(): Prisma.LoreNodeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.nodeRelation`: Exposes CRUD operations for the **NodeRelation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NodeRelations
+    * const nodeRelations = await prisma.nodeRelation.findMany()
+    * ```
+    */
+  get nodeRelation(): Prisma.NodeRelationDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.chapter`: Exposes CRUD operations for the **Chapter** model.
@@ -769,6 +784,7 @@ export namespace Prisma {
     VerificationToken: 'VerificationToken',
     Project: 'Project',
     LoreNode: 'LoreNode',
+    NodeRelation: 'NodeRelation',
     Chapter: 'Chapter',
     Lore: 'Lore',
     Character: 'Character',
@@ -791,7 +807,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "account" | "session" | "verificationToken" | "project" | "loreNode" | "chapter" | "lore" | "character" | "monster" | "item" | "powerSystem" | "location"
+      modelProps: "user" | "account" | "session" | "verificationToken" | "project" | "loreNode" | "nodeRelation" | "chapter" | "lore" | "character" | "monster" | "item" | "powerSystem" | "location"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1236,6 +1252,80 @@ export namespace Prisma {
           count: {
             args: Prisma.LoreNodeCountArgs<ExtArgs>
             result: $Utils.Optional<LoreNodeCountAggregateOutputType> | number
+          }
+        }
+      }
+      NodeRelation: {
+        payload: Prisma.$NodeRelationPayload<ExtArgs>
+        fields: Prisma.NodeRelationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NodeRelationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NodeRelationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload>
+          }
+          findFirst: {
+            args: Prisma.NodeRelationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NodeRelationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload>
+          }
+          findMany: {
+            args: Prisma.NodeRelationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload>[]
+          }
+          create: {
+            args: Prisma.NodeRelationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload>
+          }
+          createMany: {
+            args: Prisma.NodeRelationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NodeRelationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload>[]
+          }
+          delete: {
+            args: Prisma.NodeRelationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload>
+          }
+          update: {
+            args: Prisma.NodeRelationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload>
+          }
+          deleteMany: {
+            args: Prisma.NodeRelationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NodeRelationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.NodeRelationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload>[]
+          }
+          upsert: {
+            args: Prisma.NodeRelationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NodeRelationPayload>
+          }
+          aggregate: {
+            args: Prisma.NodeRelationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNodeRelation>
+          }
+          groupBy: {
+            args: Prisma.NodeRelationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NodeRelationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NodeRelationCountArgs<ExtArgs>
+            result: $Utils.Optional<NodeRelationCountAggregateOutputType> | number
           }
         }
       }
@@ -1871,6 +1961,7 @@ export namespace Prisma {
     verificationToken?: VerificationTokenOmit
     project?: ProjectOmit
     loreNode?: LoreNodeOmit
+    nodeRelation?: NodeRelationOmit
     chapter?: ChapterOmit
     lore?: LoreOmit
     character?: CharacterOmit
@@ -2010,6 +2101,7 @@ export namespace Prisma {
     chapters: number
     lore: number
     loreNodes: number
+    nodeRelations: number
     characters: number
     monsters: number
     items: number
@@ -2021,6 +2113,7 @@ export namespace Prisma {
     chapters?: boolean | ProjectCountOutputTypeCountChaptersArgs
     lore?: boolean | ProjectCountOutputTypeCountLoreArgs
     loreNodes?: boolean | ProjectCountOutputTypeCountLoreNodesArgs
+    nodeRelations?: boolean | ProjectCountOutputTypeCountNodeRelationsArgs
     characters?: boolean | ProjectCountOutputTypeCountCharactersArgs
     monsters?: boolean | ProjectCountOutputTypeCountMonstersArgs
     items?: boolean | ProjectCountOutputTypeCountItemsArgs
@@ -2063,6 +2156,13 @@ export namespace Prisma {
   /**
    * ProjectCountOutputType without action
    */
+  export type ProjectCountOutputTypeCountNodeRelationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NodeRelationWhereInput
+  }
+
+  /**
+   * ProjectCountOutputType without action
+   */
   export type ProjectCountOutputTypeCountCharactersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CharacterWhereInput
   }
@@ -2093,6 +2193,46 @@ export namespace Prisma {
    */
   export type ProjectCountOutputTypeCountLocationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: LocationWhereInput
+  }
+
+
+  /**
+   * Count Type LoreNodeCountOutputType
+   */
+
+  export type LoreNodeCountOutputType = {
+    outgoingRelations: number
+    incomingRelations: number
+  }
+
+  export type LoreNodeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    outgoingRelations?: boolean | LoreNodeCountOutputTypeCountOutgoingRelationsArgs
+    incomingRelations?: boolean | LoreNodeCountOutputTypeCountIncomingRelationsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * LoreNodeCountOutputType without action
+   */
+  export type LoreNodeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoreNodeCountOutputType
+     */
+    select?: LoreNodeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * LoreNodeCountOutputType without action
+   */
+  export type LoreNodeCountOutputTypeCountOutgoingRelationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NodeRelationWhereInput
+  }
+
+  /**
+   * LoreNodeCountOutputType without action
+   */
+  export type LoreNodeCountOutputTypeCountIncomingRelationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NodeRelationWhereInput
   }
 
 
@@ -6666,6 +6806,7 @@ export namespace Prisma {
     chapters?: boolean | Project$chaptersArgs<ExtArgs>
     lore?: boolean | Project$loreArgs<ExtArgs>
     loreNodes?: boolean | Project$loreNodesArgs<ExtArgs>
+    nodeRelations?: boolean | Project$nodeRelationsArgs<ExtArgs>
     characters?: boolean | Project$charactersArgs<ExtArgs>
     monsters?: boolean | Project$monstersArgs<ExtArgs>
     items?: boolean | Project$itemsArgs<ExtArgs>
@@ -6712,6 +6853,7 @@ export namespace Prisma {
     chapters?: boolean | Project$chaptersArgs<ExtArgs>
     lore?: boolean | Project$loreArgs<ExtArgs>
     loreNodes?: boolean | Project$loreNodesArgs<ExtArgs>
+    nodeRelations?: boolean | Project$nodeRelationsArgs<ExtArgs>
     characters?: boolean | Project$charactersArgs<ExtArgs>
     monsters?: boolean | Project$monstersArgs<ExtArgs>
     items?: boolean | Project$itemsArgs<ExtArgs>
@@ -6733,6 +6875,7 @@ export namespace Prisma {
       chapters: Prisma.$ChapterPayload<ExtArgs>[]
       lore: Prisma.$LorePayload<ExtArgs>[]
       loreNodes: Prisma.$LoreNodePayload<ExtArgs>[]
+      nodeRelations: Prisma.$NodeRelationPayload<ExtArgs>[]
       characters: Prisma.$CharacterPayload<ExtArgs>[]
       monsters: Prisma.$MonsterPayload<ExtArgs>[]
       items: Prisma.$ItemPayload<ExtArgs>[]
@@ -7145,6 +7288,7 @@ export namespace Prisma {
     chapters<T extends Project$chaptersArgs<ExtArgs> = {}>(args?: Subset<T, Project$chaptersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChapterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     lore<T extends Project$loreArgs<ExtArgs> = {}>(args?: Subset<T, Project$loreArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     loreNodes<T extends Project$loreNodesArgs<ExtArgs> = {}>(args?: Subset<T, Project$loreNodesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoreNodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    nodeRelations<T extends Project$nodeRelationsArgs<ExtArgs> = {}>(args?: Subset<T, Project$nodeRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     characters<T extends Project$charactersArgs<ExtArgs> = {}>(args?: Subset<T, Project$charactersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     monsters<T extends Project$monstersArgs<ExtArgs> = {}>(args?: Subset<T, Project$monstersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     items<T extends Project$itemsArgs<ExtArgs> = {}>(args?: Subset<T, Project$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7659,6 +7803,30 @@ export namespace Prisma {
   }
 
   /**
+   * Project.nodeRelations
+   */
+  export type Project$nodeRelationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    where?: NodeRelationWhereInput
+    orderBy?: NodeRelationOrderByWithRelationInput | NodeRelationOrderByWithRelationInput[]
+    cursor?: NodeRelationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NodeRelationScalarFieldEnum | NodeRelationScalarFieldEnum[]
+  }
+
+  /**
    * Project.characters
    */
   export type Project$charactersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7824,6 +7992,7 @@ export namespace Prisma {
     name: string | null
     content: string | null
     position: number | null
+    color: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -7835,6 +8004,7 @@ export namespace Prisma {
     name: string | null
     content: string | null
     position: number | null
+    color: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -7846,6 +8016,7 @@ export namespace Prisma {
     name: number
     content: number
     position: number
+    color: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -7867,6 +8038,7 @@ export namespace Prisma {
     name?: true
     content?: true
     position?: true
+    color?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -7878,6 +8050,7 @@ export namespace Prisma {
     name?: true
     content?: true
     position?: true
+    color?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -7889,6 +8062,7 @@ export namespace Prisma {
     name?: true
     content?: true
     position?: true
+    color?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -7987,6 +8161,7 @@ export namespace Prisma {
     name: string
     content: string | null
     position: number
+    color: string
     createdAt: Date
     updatedAt: Date
     _count: LoreNodeCountAggregateOutputType | null
@@ -8017,9 +8192,13 @@ export namespace Prisma {
     name?: boolean
     content?: boolean
     position?: boolean
+    color?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
+    outgoingRelations?: boolean | LoreNode$outgoingRelationsArgs<ExtArgs>
+    incomingRelations?: boolean | LoreNode$incomingRelationsArgs<ExtArgs>
+    _count?: boolean | LoreNodeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["loreNode"]>
 
   export type LoreNodeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -8029,6 +8208,7 @@ export namespace Prisma {
     name?: boolean
     content?: boolean
     position?: boolean
+    color?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
@@ -8041,6 +8221,7 @@ export namespace Prisma {
     name?: boolean
     content?: boolean
     position?: boolean
+    color?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
@@ -8053,13 +8234,17 @@ export namespace Prisma {
     name?: boolean
     content?: boolean
     position?: boolean
+    color?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type LoreNodeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "type" | "name" | "content" | "position" | "createdAt" | "updatedAt", ExtArgs["result"]["loreNode"]>
+  export type LoreNodeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "type" | "name" | "content" | "position" | "color" | "createdAt" | "updatedAt", ExtArgs["result"]["loreNode"]>
   export type LoreNodeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
+    outgoingRelations?: boolean | LoreNode$outgoingRelationsArgs<ExtArgs>
+    incomingRelations?: boolean | LoreNode$incomingRelationsArgs<ExtArgs>
+    _count?: boolean | LoreNodeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type LoreNodeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
@@ -8072,6 +8257,8 @@ export namespace Prisma {
     name: "LoreNode"
     objects: {
       project: Prisma.$ProjectPayload<ExtArgs>
+      outgoingRelations: Prisma.$NodeRelationPayload<ExtArgs>[]
+      incomingRelations: Prisma.$NodeRelationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8080,6 +8267,7 @@ export namespace Prisma {
       name: string
       content: string | null
       position: number
+      color: string
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["loreNode"]>
@@ -8477,6 +8665,8 @@ export namespace Prisma {
   export interface Prisma__LoreNodeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    outgoingRelations<T extends LoreNode$outgoingRelationsArgs<ExtArgs> = {}>(args?: Subset<T, LoreNode$outgoingRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    incomingRelations<T extends LoreNode$incomingRelationsArgs<ExtArgs> = {}>(args?: Subset<T, LoreNode$incomingRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8512,6 +8702,7 @@ export namespace Prisma {
     readonly name: FieldRef<"LoreNode", 'String'>
     readonly content: FieldRef<"LoreNode", 'String'>
     readonly position: FieldRef<"LoreNode", 'Float'>
+    readonly color: FieldRef<"LoreNode", 'String'>
     readonly createdAt: FieldRef<"LoreNode", 'DateTime'>
     readonly updatedAt: FieldRef<"LoreNode", 'DateTime'>
   }
@@ -8915,6 +9106,54 @@ export namespace Prisma {
   }
 
   /**
+   * LoreNode.outgoingRelations
+   */
+  export type LoreNode$outgoingRelationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    where?: NodeRelationWhereInput
+    orderBy?: NodeRelationOrderByWithRelationInput | NodeRelationOrderByWithRelationInput[]
+    cursor?: NodeRelationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NodeRelationScalarFieldEnum | NodeRelationScalarFieldEnum[]
+  }
+
+  /**
+   * LoreNode.incomingRelations
+   */
+  export type LoreNode$incomingRelationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    where?: NodeRelationWhereInput
+    orderBy?: NodeRelationOrderByWithRelationInput | NodeRelationOrderByWithRelationInput[]
+    cursor?: NodeRelationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: NodeRelationScalarFieldEnum | NodeRelationScalarFieldEnum[]
+  }
+
+  /**
    * LoreNode without action
    */
   export type LoreNodeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8930,6 +9169,1085 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: LoreNodeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model NodeRelation
+   */
+
+  export type AggregateNodeRelation = {
+    _count: NodeRelationCountAggregateOutputType | null
+    _min: NodeRelationMinAggregateOutputType | null
+    _max: NodeRelationMaxAggregateOutputType | null
+  }
+
+  export type NodeRelationMinAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    sourceNodeId: string | null
+    targetNodeId: string | null
+    createdAt: Date | null
+  }
+
+  export type NodeRelationMaxAggregateOutputType = {
+    id: string | null
+    projectId: string | null
+    sourceNodeId: string | null
+    targetNodeId: string | null
+    createdAt: Date | null
+  }
+
+  export type NodeRelationCountAggregateOutputType = {
+    id: number
+    projectId: number
+    sourceNodeId: number
+    targetNodeId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type NodeRelationMinAggregateInputType = {
+    id?: true
+    projectId?: true
+    sourceNodeId?: true
+    targetNodeId?: true
+    createdAt?: true
+  }
+
+  export type NodeRelationMaxAggregateInputType = {
+    id?: true
+    projectId?: true
+    sourceNodeId?: true
+    targetNodeId?: true
+    createdAt?: true
+  }
+
+  export type NodeRelationCountAggregateInputType = {
+    id?: true
+    projectId?: true
+    sourceNodeId?: true
+    targetNodeId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type NodeRelationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NodeRelation to aggregate.
+     */
+    where?: NodeRelationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NodeRelations to fetch.
+     */
+    orderBy?: NodeRelationOrderByWithRelationInput | NodeRelationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NodeRelationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NodeRelations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NodeRelations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned NodeRelations
+    **/
+    _count?: true | NodeRelationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NodeRelationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NodeRelationMaxAggregateInputType
+  }
+
+  export type GetNodeRelationAggregateType<T extends NodeRelationAggregateArgs> = {
+        [P in keyof T & keyof AggregateNodeRelation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNodeRelation[P]>
+      : GetScalarType<T[P], AggregateNodeRelation[P]>
+  }
+
+
+
+
+  export type NodeRelationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NodeRelationWhereInput
+    orderBy?: NodeRelationOrderByWithAggregationInput | NodeRelationOrderByWithAggregationInput[]
+    by: NodeRelationScalarFieldEnum[] | NodeRelationScalarFieldEnum
+    having?: NodeRelationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NodeRelationCountAggregateInputType | true
+    _min?: NodeRelationMinAggregateInputType
+    _max?: NodeRelationMaxAggregateInputType
+  }
+
+  export type NodeRelationGroupByOutputType = {
+    id: string
+    projectId: string
+    sourceNodeId: string
+    targetNodeId: string
+    createdAt: Date
+    _count: NodeRelationCountAggregateOutputType | null
+    _min: NodeRelationMinAggregateOutputType | null
+    _max: NodeRelationMaxAggregateOutputType | null
+  }
+
+  type GetNodeRelationGroupByPayload<T extends NodeRelationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NodeRelationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NodeRelationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NodeRelationGroupByOutputType[P]>
+            : GetScalarType<T[P], NodeRelationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NodeRelationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    sourceNodeId?: boolean
+    targetNodeId?: boolean
+    createdAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    sourceNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+    targetNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["nodeRelation"]>
+
+  export type NodeRelationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    sourceNodeId?: boolean
+    targetNodeId?: boolean
+    createdAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    sourceNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+    targetNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["nodeRelation"]>
+
+  export type NodeRelationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    projectId?: boolean
+    sourceNodeId?: boolean
+    targetNodeId?: boolean
+    createdAt?: boolean
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    sourceNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+    targetNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["nodeRelation"]>
+
+  export type NodeRelationSelectScalar = {
+    id?: boolean
+    projectId?: boolean
+    sourceNodeId?: boolean
+    targetNodeId?: boolean
+    createdAt?: boolean
+  }
+
+  export type NodeRelationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "sourceNodeId" | "targetNodeId" | "createdAt", ExtArgs["result"]["nodeRelation"]>
+  export type NodeRelationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    sourceNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+    targetNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+  }
+  export type NodeRelationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    sourceNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+    targetNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+  }
+  export type NodeRelationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    project?: boolean | ProjectDefaultArgs<ExtArgs>
+    sourceNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+    targetNode?: boolean | LoreNodeDefaultArgs<ExtArgs>
+  }
+
+  export type $NodeRelationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NodeRelation"
+    objects: {
+      project: Prisma.$ProjectPayload<ExtArgs>
+      sourceNode: Prisma.$LoreNodePayload<ExtArgs>
+      targetNode: Prisma.$LoreNodePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      projectId: string
+      sourceNodeId: string
+      targetNodeId: string
+      createdAt: Date
+    }, ExtArgs["result"]["nodeRelation"]>
+    composites: {}
+  }
+
+  type NodeRelationGetPayload<S extends boolean | null | undefined | NodeRelationDefaultArgs> = $Result.GetResult<Prisma.$NodeRelationPayload, S>
+
+  type NodeRelationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NodeRelationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: NodeRelationCountAggregateInputType | true
+    }
+
+  export interface NodeRelationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NodeRelation'], meta: { name: 'NodeRelation' } }
+    /**
+     * Find zero or one NodeRelation that matches the filter.
+     * @param {NodeRelationFindUniqueArgs} args - Arguments to find a NodeRelation
+     * @example
+     * // Get one NodeRelation
+     * const nodeRelation = await prisma.nodeRelation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NodeRelationFindUniqueArgs>(args: SelectSubset<T, NodeRelationFindUniqueArgs<ExtArgs>>): Prisma__NodeRelationClient<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one NodeRelation that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {NodeRelationFindUniqueOrThrowArgs} args - Arguments to find a NodeRelation
+     * @example
+     * // Get one NodeRelation
+     * const nodeRelation = await prisma.nodeRelation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NodeRelationFindUniqueOrThrowArgs>(args: SelectSubset<T, NodeRelationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NodeRelationClient<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first NodeRelation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NodeRelationFindFirstArgs} args - Arguments to find a NodeRelation
+     * @example
+     * // Get one NodeRelation
+     * const nodeRelation = await prisma.nodeRelation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NodeRelationFindFirstArgs>(args?: SelectSubset<T, NodeRelationFindFirstArgs<ExtArgs>>): Prisma__NodeRelationClient<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first NodeRelation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NodeRelationFindFirstOrThrowArgs} args - Arguments to find a NodeRelation
+     * @example
+     * // Get one NodeRelation
+     * const nodeRelation = await prisma.nodeRelation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NodeRelationFindFirstOrThrowArgs>(args?: SelectSubset<T, NodeRelationFindFirstOrThrowArgs<ExtArgs>>): Prisma__NodeRelationClient<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more NodeRelations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NodeRelationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all NodeRelations
+     * const nodeRelations = await prisma.nodeRelation.findMany()
+     * 
+     * // Get first 10 NodeRelations
+     * const nodeRelations = await prisma.nodeRelation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const nodeRelationWithIdOnly = await prisma.nodeRelation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends NodeRelationFindManyArgs>(args?: SelectSubset<T, NodeRelationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a NodeRelation.
+     * @param {NodeRelationCreateArgs} args - Arguments to create a NodeRelation.
+     * @example
+     * // Create one NodeRelation
+     * const NodeRelation = await prisma.nodeRelation.create({
+     *   data: {
+     *     // ... data to create a NodeRelation
+     *   }
+     * })
+     * 
+     */
+    create<T extends NodeRelationCreateArgs>(args: SelectSubset<T, NodeRelationCreateArgs<ExtArgs>>): Prisma__NodeRelationClient<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many NodeRelations.
+     * @param {NodeRelationCreateManyArgs} args - Arguments to create many NodeRelations.
+     * @example
+     * // Create many NodeRelations
+     * const nodeRelation = await prisma.nodeRelation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NodeRelationCreateManyArgs>(args?: SelectSubset<T, NodeRelationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many NodeRelations and returns the data saved in the database.
+     * @param {NodeRelationCreateManyAndReturnArgs} args - Arguments to create many NodeRelations.
+     * @example
+     * // Create many NodeRelations
+     * const nodeRelation = await prisma.nodeRelation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many NodeRelations and only return the `id`
+     * const nodeRelationWithIdOnly = await prisma.nodeRelation.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NodeRelationCreateManyAndReturnArgs>(args?: SelectSubset<T, NodeRelationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a NodeRelation.
+     * @param {NodeRelationDeleteArgs} args - Arguments to delete one NodeRelation.
+     * @example
+     * // Delete one NodeRelation
+     * const NodeRelation = await prisma.nodeRelation.delete({
+     *   where: {
+     *     // ... filter to delete one NodeRelation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NodeRelationDeleteArgs>(args: SelectSubset<T, NodeRelationDeleteArgs<ExtArgs>>): Prisma__NodeRelationClient<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one NodeRelation.
+     * @param {NodeRelationUpdateArgs} args - Arguments to update one NodeRelation.
+     * @example
+     * // Update one NodeRelation
+     * const nodeRelation = await prisma.nodeRelation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NodeRelationUpdateArgs>(args: SelectSubset<T, NodeRelationUpdateArgs<ExtArgs>>): Prisma__NodeRelationClient<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more NodeRelations.
+     * @param {NodeRelationDeleteManyArgs} args - Arguments to filter NodeRelations to delete.
+     * @example
+     * // Delete a few NodeRelations
+     * const { count } = await prisma.nodeRelation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NodeRelationDeleteManyArgs>(args?: SelectSubset<T, NodeRelationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NodeRelations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NodeRelationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many NodeRelations
+     * const nodeRelation = await prisma.nodeRelation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NodeRelationUpdateManyArgs>(args: SelectSubset<T, NodeRelationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NodeRelations and returns the data updated in the database.
+     * @param {NodeRelationUpdateManyAndReturnArgs} args - Arguments to update many NodeRelations.
+     * @example
+     * // Update many NodeRelations
+     * const nodeRelation = await prisma.nodeRelation.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more NodeRelations and only return the `id`
+     * const nodeRelationWithIdOnly = await prisma.nodeRelation.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends NodeRelationUpdateManyAndReturnArgs>(args: SelectSubset<T, NodeRelationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one NodeRelation.
+     * @param {NodeRelationUpsertArgs} args - Arguments to update or create a NodeRelation.
+     * @example
+     * // Update or create a NodeRelation
+     * const nodeRelation = await prisma.nodeRelation.upsert({
+     *   create: {
+     *     // ... data to create a NodeRelation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the NodeRelation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NodeRelationUpsertArgs>(args: SelectSubset<T, NodeRelationUpsertArgs<ExtArgs>>): Prisma__NodeRelationClient<$Result.GetResult<Prisma.$NodeRelationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of NodeRelations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NodeRelationCountArgs} args - Arguments to filter NodeRelations to count.
+     * @example
+     * // Count the number of NodeRelations
+     * const count = await prisma.nodeRelation.count({
+     *   where: {
+     *     // ... the filter for the NodeRelations we want to count
+     *   }
+     * })
+    **/
+    count<T extends NodeRelationCountArgs>(
+      args?: Subset<T, NodeRelationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NodeRelationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a NodeRelation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NodeRelationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NodeRelationAggregateArgs>(args: Subset<T, NodeRelationAggregateArgs>): Prisma.PrismaPromise<GetNodeRelationAggregateType<T>>
+
+    /**
+     * Group by NodeRelation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NodeRelationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NodeRelationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NodeRelationGroupByArgs['orderBy'] }
+        : { orderBy?: NodeRelationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NodeRelationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNodeRelationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the NodeRelation model
+   */
+  readonly fields: NodeRelationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for NodeRelation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NodeRelationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    project<T extends ProjectDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProjectDefaultArgs<ExtArgs>>): Prisma__ProjectClient<$Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    sourceNode<T extends LoreNodeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LoreNodeDefaultArgs<ExtArgs>>): Prisma__LoreNodeClient<$Result.GetResult<Prisma.$LoreNodePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    targetNode<T extends LoreNodeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, LoreNodeDefaultArgs<ExtArgs>>): Prisma__LoreNodeClient<$Result.GetResult<Prisma.$LoreNodePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the NodeRelation model
+   */
+  interface NodeRelationFieldRefs {
+    readonly id: FieldRef<"NodeRelation", 'String'>
+    readonly projectId: FieldRef<"NodeRelation", 'String'>
+    readonly sourceNodeId: FieldRef<"NodeRelation", 'String'>
+    readonly targetNodeId: FieldRef<"NodeRelation", 'String'>
+    readonly createdAt: FieldRef<"NodeRelation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * NodeRelation findUnique
+   */
+  export type NodeRelationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    /**
+     * Filter, which NodeRelation to fetch.
+     */
+    where: NodeRelationWhereUniqueInput
+  }
+
+  /**
+   * NodeRelation findUniqueOrThrow
+   */
+  export type NodeRelationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    /**
+     * Filter, which NodeRelation to fetch.
+     */
+    where: NodeRelationWhereUniqueInput
+  }
+
+  /**
+   * NodeRelation findFirst
+   */
+  export type NodeRelationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    /**
+     * Filter, which NodeRelation to fetch.
+     */
+    where?: NodeRelationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NodeRelations to fetch.
+     */
+    orderBy?: NodeRelationOrderByWithRelationInput | NodeRelationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NodeRelations.
+     */
+    cursor?: NodeRelationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NodeRelations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NodeRelations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NodeRelations.
+     */
+    distinct?: NodeRelationScalarFieldEnum | NodeRelationScalarFieldEnum[]
+  }
+
+  /**
+   * NodeRelation findFirstOrThrow
+   */
+  export type NodeRelationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    /**
+     * Filter, which NodeRelation to fetch.
+     */
+    where?: NodeRelationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NodeRelations to fetch.
+     */
+    orderBy?: NodeRelationOrderByWithRelationInput | NodeRelationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NodeRelations.
+     */
+    cursor?: NodeRelationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NodeRelations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NodeRelations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NodeRelations.
+     */
+    distinct?: NodeRelationScalarFieldEnum | NodeRelationScalarFieldEnum[]
+  }
+
+  /**
+   * NodeRelation findMany
+   */
+  export type NodeRelationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    /**
+     * Filter, which NodeRelations to fetch.
+     */
+    where?: NodeRelationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NodeRelations to fetch.
+     */
+    orderBy?: NodeRelationOrderByWithRelationInput | NodeRelationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing NodeRelations.
+     */
+    cursor?: NodeRelationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NodeRelations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NodeRelations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NodeRelations.
+     */
+    distinct?: NodeRelationScalarFieldEnum | NodeRelationScalarFieldEnum[]
+  }
+
+  /**
+   * NodeRelation create
+   */
+  export type NodeRelationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a NodeRelation.
+     */
+    data: XOR<NodeRelationCreateInput, NodeRelationUncheckedCreateInput>
+  }
+
+  /**
+   * NodeRelation createMany
+   */
+  export type NodeRelationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many NodeRelations.
+     */
+    data: NodeRelationCreateManyInput | NodeRelationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NodeRelation createManyAndReturn
+   */
+  export type NodeRelationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * The data used to create many NodeRelations.
+     */
+    data: NodeRelationCreateManyInput | NodeRelationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * NodeRelation update
+   */
+  export type NodeRelationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a NodeRelation.
+     */
+    data: XOR<NodeRelationUpdateInput, NodeRelationUncheckedUpdateInput>
+    /**
+     * Choose, which NodeRelation to update.
+     */
+    where: NodeRelationWhereUniqueInput
+  }
+
+  /**
+   * NodeRelation updateMany
+   */
+  export type NodeRelationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update NodeRelations.
+     */
+    data: XOR<NodeRelationUpdateManyMutationInput, NodeRelationUncheckedUpdateManyInput>
+    /**
+     * Filter which NodeRelations to update
+     */
+    where?: NodeRelationWhereInput
+    /**
+     * Limit how many NodeRelations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * NodeRelation updateManyAndReturn
+   */
+  export type NodeRelationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * The data used to update NodeRelations.
+     */
+    data: XOR<NodeRelationUpdateManyMutationInput, NodeRelationUncheckedUpdateManyInput>
+    /**
+     * Filter which NodeRelations to update
+     */
+    where?: NodeRelationWhereInput
+    /**
+     * Limit how many NodeRelations to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * NodeRelation upsert
+   */
+  export type NodeRelationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the NodeRelation to update in case it exists.
+     */
+    where: NodeRelationWhereUniqueInput
+    /**
+     * In case the NodeRelation found by the `where` argument doesn't exist, create a new NodeRelation with this data.
+     */
+    create: XOR<NodeRelationCreateInput, NodeRelationUncheckedCreateInput>
+    /**
+     * In case the NodeRelation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NodeRelationUpdateInput, NodeRelationUncheckedUpdateInput>
+  }
+
+  /**
+   * NodeRelation delete
+   */
+  export type NodeRelationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
+    /**
+     * Filter which NodeRelation to delete.
+     */
+    where: NodeRelationWhereUniqueInput
+  }
+
+  /**
+   * NodeRelation deleteMany
+   */
+  export type NodeRelationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NodeRelations to delete
+     */
+    where?: NodeRelationWhereInput
+    /**
+     * Limit how many NodeRelations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * NodeRelation without action
+   */
+  export type NodeRelationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NodeRelation
+     */
+    select?: NodeRelationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NodeRelation
+     */
+    omit?: NodeRelationOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NodeRelationInclude<ExtArgs> | null
   }
 
 
@@ -16727,11 +18045,23 @@ export namespace Prisma {
     name: 'name',
     content: 'content',
     position: 'position',
+    color: 'color',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type LoreNodeScalarFieldEnum = (typeof LoreNodeScalarFieldEnum)[keyof typeof LoreNodeScalarFieldEnum]
+
+
+  export const NodeRelationScalarFieldEnum: {
+    id: 'id',
+    projectId: 'projectId',
+    sourceNodeId: 'sourceNodeId',
+    targetNodeId: 'targetNodeId',
+    createdAt: 'createdAt'
+  };
+
+  export type NodeRelationScalarFieldEnum = (typeof NodeRelationScalarFieldEnum)[keyof typeof NodeRelationScalarFieldEnum]
 
 
   export const ChapterScalarFieldEnum: {
@@ -17194,6 +18524,7 @@ export namespace Prisma {
     chapters?: ChapterListRelationFilter
     lore?: LoreListRelationFilter
     loreNodes?: LoreNodeListRelationFilter
+    nodeRelations?: NodeRelationListRelationFilter
     characters?: CharacterListRelationFilter
     monsters?: MonsterListRelationFilter
     items?: ItemListRelationFilter
@@ -17213,6 +18544,7 @@ export namespace Prisma {
     chapters?: ChapterOrderByRelationAggregateInput
     lore?: LoreOrderByRelationAggregateInput
     loreNodes?: LoreNodeOrderByRelationAggregateInput
+    nodeRelations?: NodeRelationOrderByRelationAggregateInput
     characters?: CharacterOrderByRelationAggregateInput
     monsters?: MonsterOrderByRelationAggregateInput
     items?: ItemOrderByRelationAggregateInput
@@ -17235,6 +18567,7 @@ export namespace Prisma {
     chapters?: ChapterListRelationFilter
     lore?: LoreListRelationFilter
     loreNodes?: LoreNodeListRelationFilter
+    nodeRelations?: NodeRelationListRelationFilter
     characters?: CharacterListRelationFilter
     monsters?: MonsterListRelationFilter
     items?: ItemListRelationFilter
@@ -17278,9 +18611,12 @@ export namespace Prisma {
     name?: StringFilter<"LoreNode"> | string
     content?: StringNullableFilter<"LoreNode"> | string | null
     position?: FloatFilter<"LoreNode"> | number
+    color?: StringFilter<"LoreNode"> | string
     createdAt?: DateTimeFilter<"LoreNode"> | Date | string
     updatedAt?: DateTimeFilter<"LoreNode"> | Date | string
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+    outgoingRelations?: NodeRelationListRelationFilter
+    incomingRelations?: NodeRelationListRelationFilter
   }
 
   export type LoreNodeOrderByWithRelationInput = {
@@ -17290,9 +18626,12 @@ export namespace Prisma {
     name?: SortOrder
     content?: SortOrderInput | SortOrder
     position?: SortOrder
+    color?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     project?: ProjectOrderByWithRelationInput
+    outgoingRelations?: NodeRelationOrderByRelationAggregateInput
+    incomingRelations?: NodeRelationOrderByRelationAggregateInput
   }
 
   export type LoreNodeWhereUniqueInput = Prisma.AtLeast<{
@@ -17305,9 +18644,12 @@ export namespace Prisma {
     name?: StringFilter<"LoreNode"> | string
     content?: StringNullableFilter<"LoreNode"> | string | null
     position?: FloatFilter<"LoreNode"> | number
+    color?: StringFilter<"LoreNode"> | string
     createdAt?: DateTimeFilter<"LoreNode"> | Date | string
     updatedAt?: DateTimeFilter<"LoreNode"> | Date | string
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+    outgoingRelations?: NodeRelationListRelationFilter
+    incomingRelations?: NodeRelationListRelationFilter
   }, "id">
 
   export type LoreNodeOrderByWithAggregationInput = {
@@ -17317,6 +18659,7 @@ export namespace Prisma {
     name?: SortOrder
     content?: SortOrderInput | SortOrder
     position?: SortOrder
+    color?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: LoreNodeCountOrderByAggregateInput
@@ -17336,8 +18679,71 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"LoreNode"> | string
     content?: StringNullableWithAggregatesFilter<"LoreNode"> | string | null
     position?: FloatWithAggregatesFilter<"LoreNode"> | number
+    color?: StringWithAggregatesFilter<"LoreNode"> | string
     createdAt?: DateTimeWithAggregatesFilter<"LoreNode"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"LoreNode"> | Date | string
+  }
+
+  export type NodeRelationWhereInput = {
+    AND?: NodeRelationWhereInput | NodeRelationWhereInput[]
+    OR?: NodeRelationWhereInput[]
+    NOT?: NodeRelationWhereInput | NodeRelationWhereInput[]
+    id?: StringFilter<"NodeRelation"> | string
+    projectId?: StringFilter<"NodeRelation"> | string
+    sourceNodeId?: StringFilter<"NodeRelation"> | string
+    targetNodeId?: StringFilter<"NodeRelation"> | string
+    createdAt?: DateTimeFilter<"NodeRelation"> | Date | string
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+    sourceNode?: XOR<LoreNodeScalarRelationFilter, LoreNodeWhereInput>
+    targetNode?: XOR<LoreNodeScalarRelationFilter, LoreNodeWhereInput>
+  }
+
+  export type NodeRelationOrderByWithRelationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    sourceNodeId?: SortOrder
+    targetNodeId?: SortOrder
+    createdAt?: SortOrder
+    project?: ProjectOrderByWithRelationInput
+    sourceNode?: LoreNodeOrderByWithRelationInput
+    targetNode?: LoreNodeOrderByWithRelationInput
+  }
+
+  export type NodeRelationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    sourceNodeId_targetNodeId?: NodeRelationSourceNodeIdTargetNodeIdCompoundUniqueInput
+    AND?: NodeRelationWhereInput | NodeRelationWhereInput[]
+    OR?: NodeRelationWhereInput[]
+    NOT?: NodeRelationWhereInput | NodeRelationWhereInput[]
+    projectId?: StringFilter<"NodeRelation"> | string
+    sourceNodeId?: StringFilter<"NodeRelation"> | string
+    targetNodeId?: StringFilter<"NodeRelation"> | string
+    createdAt?: DateTimeFilter<"NodeRelation"> | Date | string
+    project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
+    sourceNode?: XOR<LoreNodeScalarRelationFilter, LoreNodeWhereInput>
+    targetNode?: XOR<LoreNodeScalarRelationFilter, LoreNodeWhereInput>
+  }, "id" | "sourceNodeId_targetNodeId">
+
+  export type NodeRelationOrderByWithAggregationInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    sourceNodeId?: SortOrder
+    targetNodeId?: SortOrder
+    createdAt?: SortOrder
+    _count?: NodeRelationCountOrderByAggregateInput
+    _max?: NodeRelationMaxOrderByAggregateInput
+    _min?: NodeRelationMinOrderByAggregateInput
+  }
+
+  export type NodeRelationScalarWhereWithAggregatesInput = {
+    AND?: NodeRelationScalarWhereWithAggregatesInput | NodeRelationScalarWhereWithAggregatesInput[]
+    OR?: NodeRelationScalarWhereWithAggregatesInput[]
+    NOT?: NodeRelationScalarWhereWithAggregatesInput | NodeRelationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"NodeRelation"> | string
+    projectId?: StringWithAggregatesFilter<"NodeRelation"> | string
+    sourceNodeId?: StringWithAggregatesFilter<"NodeRelation"> | string
+    targetNodeId?: StringWithAggregatesFilter<"NodeRelation"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"NodeRelation"> | Date | string
   }
 
   export type ChapterWhereInput = {
@@ -18111,6 +19517,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutProjectInput
     lore?: LoreCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationCreateNestedManyWithoutProjectInput
     characters?: CharacterCreateNestedManyWithoutProjectInput
     monsters?: MonsterCreateNestedManyWithoutProjectInput
     items?: ItemCreateNestedManyWithoutProjectInput
@@ -18129,6 +19536,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutProjectInput
     lore?: LoreUncheckedCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeUncheckedCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationUncheckedCreateNestedManyWithoutProjectInput
     characters?: CharacterUncheckedCreateNestedManyWithoutProjectInput
     monsters?: MonsterUncheckedCreateNestedManyWithoutProjectInput
     items?: ItemUncheckedCreateNestedManyWithoutProjectInput
@@ -18147,6 +19555,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutProjectNestedInput
     lore?: LoreUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUpdateManyWithoutProjectNestedInput
     characters?: CharacterUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUpdateManyWithoutProjectNestedInput
     items?: ItemUpdateManyWithoutProjectNestedInput
@@ -18165,6 +19574,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutProjectNestedInput
     lore?: LoreUncheckedUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUncheckedUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUncheckedUpdateManyWithoutProjectNestedInput
     characters?: CharacterUncheckedUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUncheckedUpdateManyWithoutProjectNestedInput
     items?: ItemUncheckedUpdateManyWithoutProjectNestedInput
@@ -18207,9 +19617,12 @@ export namespace Prisma {
     name: string
     content?: string | null
     position: number
+    color?: string
     createdAt?: Date | string
     updatedAt?: Date | string
     project: ProjectCreateNestedOneWithoutLoreNodesInput
+    outgoingRelations?: NodeRelationCreateNestedManyWithoutSourceNodeInput
+    incomingRelations?: NodeRelationCreateNestedManyWithoutTargetNodeInput
   }
 
   export type LoreNodeUncheckedCreateInput = {
@@ -18219,8 +19632,11 @@ export namespace Prisma {
     name: string
     content?: string | null
     position: number
+    color?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    outgoingRelations?: NodeRelationUncheckedCreateNestedManyWithoutSourceNodeInput
+    incomingRelations?: NodeRelationUncheckedCreateNestedManyWithoutTargetNodeInput
   }
 
   export type LoreNodeUpdateInput = {
@@ -18229,9 +19645,12 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     content?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     project?: ProjectUpdateOneRequiredWithoutLoreNodesNestedInput
+    outgoingRelations?: NodeRelationUpdateManyWithoutSourceNodeNestedInput
+    incomingRelations?: NodeRelationUpdateManyWithoutTargetNodeNestedInput
   }
 
   export type LoreNodeUncheckedUpdateInput = {
@@ -18241,8 +19660,11 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     content?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    outgoingRelations?: NodeRelationUncheckedUpdateManyWithoutSourceNodeNestedInput
+    incomingRelations?: NodeRelationUncheckedUpdateManyWithoutTargetNodeNestedInput
   }
 
   export type LoreNodeCreateManyInput = {
@@ -18252,6 +19674,7 @@ export namespace Prisma {
     name: string
     content?: string | null
     position: number
+    color?: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -18262,6 +19685,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     content?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -18273,8 +19697,62 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     content?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NodeRelationCreateInput = {
+    id?: string
+    createdAt?: Date | string
+    project: ProjectCreateNestedOneWithoutNodeRelationsInput
+    sourceNode: LoreNodeCreateNestedOneWithoutOutgoingRelationsInput
+    targetNode: LoreNodeCreateNestedOneWithoutIncomingRelationsInput
+  }
+
+  export type NodeRelationUncheckedCreateInput = {
+    id?: string
+    projectId: string
+    sourceNodeId: string
+    targetNodeId: string
+    createdAt?: Date | string
+  }
+
+  export type NodeRelationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectUpdateOneRequiredWithoutNodeRelationsNestedInput
+    sourceNode?: LoreNodeUpdateOneRequiredWithoutOutgoingRelationsNestedInput
+    targetNode?: LoreNodeUpdateOneRequiredWithoutIncomingRelationsNestedInput
+  }
+
+  export type NodeRelationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    sourceNodeId?: StringFieldUpdateOperationsInput | string
+    targetNodeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NodeRelationCreateManyInput = {
+    id?: string
+    projectId: string
+    sourceNodeId: string
+    targetNodeId: string
+    createdAt?: Date | string
+  }
+
+  export type NodeRelationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NodeRelationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    sourceNodeId?: StringFieldUpdateOperationsInput | string
+    targetNodeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ChapterCreateInput = {
@@ -19124,6 +20602,12 @@ export namespace Prisma {
     none?: LoreNodeWhereInput
   }
 
+  export type NodeRelationListRelationFilter = {
+    every?: NodeRelationWhereInput
+    some?: NodeRelationWhereInput
+    none?: NodeRelationWhereInput
+  }
+
   export type CharacterListRelationFilter = {
     every?: CharacterWhereInput
     some?: CharacterWhereInput
@@ -19163,6 +20647,10 @@ export namespace Prisma {
   }
 
   export type LoreNodeOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type NodeRelationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -19239,6 +20727,7 @@ export namespace Prisma {
     name?: SortOrder
     content?: SortOrder
     position?: SortOrder
+    color?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -19254,6 +20743,7 @@ export namespace Prisma {
     name?: SortOrder
     content?: SortOrder
     position?: SortOrder
+    color?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -19265,6 +20755,7 @@ export namespace Prisma {
     name?: SortOrder
     content?: SortOrder
     position?: SortOrder
+    color?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -19287,6 +20778,40 @@ export namespace Prisma {
     _sum?: NestedFloatFilter<$PrismaModel>
     _min?: NestedFloatFilter<$PrismaModel>
     _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type LoreNodeScalarRelationFilter = {
+    is?: LoreNodeWhereInput
+    isNot?: LoreNodeWhereInput
+  }
+
+  export type NodeRelationSourceNodeIdTargetNodeIdCompoundUniqueInput = {
+    sourceNodeId: string
+    targetNodeId: string
+  }
+
+  export type NodeRelationCountOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    sourceNodeId?: SortOrder
+    targetNodeId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type NodeRelationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    sourceNodeId?: SortOrder
+    targetNodeId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type NodeRelationMinOrderByAggregateInput = {
+    id?: SortOrder
+    projectId?: SortOrder
+    sourceNodeId?: SortOrder
+    targetNodeId?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -19751,6 +21276,13 @@ export namespace Prisma {
     connect?: LoreNodeWhereUniqueInput | LoreNodeWhereUniqueInput[]
   }
 
+  export type NodeRelationCreateNestedManyWithoutProjectInput = {
+    create?: XOR<NodeRelationCreateWithoutProjectInput, NodeRelationUncheckedCreateWithoutProjectInput> | NodeRelationCreateWithoutProjectInput[] | NodeRelationUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutProjectInput | NodeRelationCreateOrConnectWithoutProjectInput[]
+    createMany?: NodeRelationCreateManyProjectInputEnvelope
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+  }
+
   export type CharacterCreateNestedManyWithoutProjectInput = {
     create?: XOR<CharacterCreateWithoutProjectInput, CharacterUncheckedCreateWithoutProjectInput> | CharacterCreateWithoutProjectInput[] | CharacterUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: CharacterCreateOrConnectWithoutProjectInput | CharacterCreateOrConnectWithoutProjectInput[]
@@ -19805,6 +21337,13 @@ export namespace Prisma {
     connectOrCreate?: LoreNodeCreateOrConnectWithoutProjectInput | LoreNodeCreateOrConnectWithoutProjectInput[]
     createMany?: LoreNodeCreateManyProjectInputEnvelope
     connect?: LoreNodeWhereUniqueInput | LoreNodeWhereUniqueInput[]
+  }
+
+  export type NodeRelationUncheckedCreateNestedManyWithoutProjectInput = {
+    create?: XOR<NodeRelationCreateWithoutProjectInput, NodeRelationUncheckedCreateWithoutProjectInput> | NodeRelationCreateWithoutProjectInput[] | NodeRelationUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutProjectInput | NodeRelationCreateOrConnectWithoutProjectInput[]
+    createMany?: NodeRelationCreateManyProjectInputEnvelope
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
   }
 
   export type CharacterUncheckedCreateNestedManyWithoutProjectInput = {
@@ -19890,6 +21429,20 @@ export namespace Prisma {
     update?: LoreNodeUpdateWithWhereUniqueWithoutProjectInput | LoreNodeUpdateWithWhereUniqueWithoutProjectInput[]
     updateMany?: LoreNodeUpdateManyWithWhereWithoutProjectInput | LoreNodeUpdateManyWithWhereWithoutProjectInput[]
     deleteMany?: LoreNodeScalarWhereInput | LoreNodeScalarWhereInput[]
+  }
+
+  export type NodeRelationUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<NodeRelationCreateWithoutProjectInput, NodeRelationUncheckedCreateWithoutProjectInput> | NodeRelationCreateWithoutProjectInput[] | NodeRelationUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutProjectInput | NodeRelationCreateOrConnectWithoutProjectInput[]
+    upsert?: NodeRelationUpsertWithWhereUniqueWithoutProjectInput | NodeRelationUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: NodeRelationCreateManyProjectInputEnvelope
+    set?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    disconnect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    delete?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    update?: NodeRelationUpdateWithWhereUniqueWithoutProjectInput | NodeRelationUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: NodeRelationUpdateManyWithWhereWithoutProjectInput | NodeRelationUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: NodeRelationScalarWhereInput | NodeRelationScalarWhereInput[]
   }
 
   export type CharacterUpdateManyWithoutProjectNestedInput = {
@@ -20004,6 +21557,20 @@ export namespace Prisma {
     deleteMany?: LoreNodeScalarWhereInput | LoreNodeScalarWhereInput[]
   }
 
+  export type NodeRelationUncheckedUpdateManyWithoutProjectNestedInput = {
+    create?: XOR<NodeRelationCreateWithoutProjectInput, NodeRelationUncheckedCreateWithoutProjectInput> | NodeRelationCreateWithoutProjectInput[] | NodeRelationUncheckedCreateWithoutProjectInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutProjectInput | NodeRelationCreateOrConnectWithoutProjectInput[]
+    upsert?: NodeRelationUpsertWithWhereUniqueWithoutProjectInput | NodeRelationUpsertWithWhereUniqueWithoutProjectInput[]
+    createMany?: NodeRelationCreateManyProjectInputEnvelope
+    set?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    disconnect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    delete?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    update?: NodeRelationUpdateWithWhereUniqueWithoutProjectInput | NodeRelationUpdateWithWhereUniqueWithoutProjectInput[]
+    updateMany?: NodeRelationUpdateManyWithWhereWithoutProjectInput | NodeRelationUpdateManyWithWhereWithoutProjectInput[]
+    deleteMany?: NodeRelationScalarWhereInput | NodeRelationScalarWhereInput[]
+  }
+
   export type CharacterUncheckedUpdateManyWithoutProjectNestedInput = {
     create?: XOR<CharacterCreateWithoutProjectInput, CharacterUncheckedCreateWithoutProjectInput> | CharacterCreateWithoutProjectInput[] | CharacterUncheckedCreateWithoutProjectInput[]
     connectOrCreate?: CharacterCreateOrConnectWithoutProjectInput | CharacterCreateOrConnectWithoutProjectInput[]
@@ -20080,6 +21647,34 @@ export namespace Prisma {
     connect?: ProjectWhereUniqueInput
   }
 
+  export type NodeRelationCreateNestedManyWithoutSourceNodeInput = {
+    create?: XOR<NodeRelationCreateWithoutSourceNodeInput, NodeRelationUncheckedCreateWithoutSourceNodeInput> | NodeRelationCreateWithoutSourceNodeInput[] | NodeRelationUncheckedCreateWithoutSourceNodeInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutSourceNodeInput | NodeRelationCreateOrConnectWithoutSourceNodeInput[]
+    createMany?: NodeRelationCreateManySourceNodeInputEnvelope
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+  }
+
+  export type NodeRelationCreateNestedManyWithoutTargetNodeInput = {
+    create?: XOR<NodeRelationCreateWithoutTargetNodeInput, NodeRelationUncheckedCreateWithoutTargetNodeInput> | NodeRelationCreateWithoutTargetNodeInput[] | NodeRelationUncheckedCreateWithoutTargetNodeInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutTargetNodeInput | NodeRelationCreateOrConnectWithoutTargetNodeInput[]
+    createMany?: NodeRelationCreateManyTargetNodeInputEnvelope
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+  }
+
+  export type NodeRelationUncheckedCreateNestedManyWithoutSourceNodeInput = {
+    create?: XOR<NodeRelationCreateWithoutSourceNodeInput, NodeRelationUncheckedCreateWithoutSourceNodeInput> | NodeRelationCreateWithoutSourceNodeInput[] | NodeRelationUncheckedCreateWithoutSourceNodeInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutSourceNodeInput | NodeRelationCreateOrConnectWithoutSourceNodeInput[]
+    createMany?: NodeRelationCreateManySourceNodeInputEnvelope
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+  }
+
+  export type NodeRelationUncheckedCreateNestedManyWithoutTargetNodeInput = {
+    create?: XOR<NodeRelationCreateWithoutTargetNodeInput, NodeRelationUncheckedCreateWithoutTargetNodeInput> | NodeRelationCreateWithoutTargetNodeInput[] | NodeRelationUncheckedCreateWithoutTargetNodeInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutTargetNodeInput | NodeRelationCreateOrConnectWithoutTargetNodeInput[]
+    createMany?: NodeRelationCreateManyTargetNodeInputEnvelope
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+  }
+
   export type FloatFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -20094,6 +21689,104 @@ export namespace Prisma {
     upsert?: ProjectUpsertWithoutLoreNodesInput
     connect?: ProjectWhereUniqueInput
     update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutLoreNodesInput, ProjectUpdateWithoutLoreNodesInput>, ProjectUncheckedUpdateWithoutLoreNodesInput>
+  }
+
+  export type NodeRelationUpdateManyWithoutSourceNodeNestedInput = {
+    create?: XOR<NodeRelationCreateWithoutSourceNodeInput, NodeRelationUncheckedCreateWithoutSourceNodeInput> | NodeRelationCreateWithoutSourceNodeInput[] | NodeRelationUncheckedCreateWithoutSourceNodeInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutSourceNodeInput | NodeRelationCreateOrConnectWithoutSourceNodeInput[]
+    upsert?: NodeRelationUpsertWithWhereUniqueWithoutSourceNodeInput | NodeRelationUpsertWithWhereUniqueWithoutSourceNodeInput[]
+    createMany?: NodeRelationCreateManySourceNodeInputEnvelope
+    set?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    disconnect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    delete?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    update?: NodeRelationUpdateWithWhereUniqueWithoutSourceNodeInput | NodeRelationUpdateWithWhereUniqueWithoutSourceNodeInput[]
+    updateMany?: NodeRelationUpdateManyWithWhereWithoutSourceNodeInput | NodeRelationUpdateManyWithWhereWithoutSourceNodeInput[]
+    deleteMany?: NodeRelationScalarWhereInput | NodeRelationScalarWhereInput[]
+  }
+
+  export type NodeRelationUpdateManyWithoutTargetNodeNestedInput = {
+    create?: XOR<NodeRelationCreateWithoutTargetNodeInput, NodeRelationUncheckedCreateWithoutTargetNodeInput> | NodeRelationCreateWithoutTargetNodeInput[] | NodeRelationUncheckedCreateWithoutTargetNodeInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutTargetNodeInput | NodeRelationCreateOrConnectWithoutTargetNodeInput[]
+    upsert?: NodeRelationUpsertWithWhereUniqueWithoutTargetNodeInput | NodeRelationUpsertWithWhereUniqueWithoutTargetNodeInput[]
+    createMany?: NodeRelationCreateManyTargetNodeInputEnvelope
+    set?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    disconnect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    delete?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    update?: NodeRelationUpdateWithWhereUniqueWithoutTargetNodeInput | NodeRelationUpdateWithWhereUniqueWithoutTargetNodeInput[]
+    updateMany?: NodeRelationUpdateManyWithWhereWithoutTargetNodeInput | NodeRelationUpdateManyWithWhereWithoutTargetNodeInput[]
+    deleteMany?: NodeRelationScalarWhereInput | NodeRelationScalarWhereInput[]
+  }
+
+  export type NodeRelationUncheckedUpdateManyWithoutSourceNodeNestedInput = {
+    create?: XOR<NodeRelationCreateWithoutSourceNodeInput, NodeRelationUncheckedCreateWithoutSourceNodeInput> | NodeRelationCreateWithoutSourceNodeInput[] | NodeRelationUncheckedCreateWithoutSourceNodeInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutSourceNodeInput | NodeRelationCreateOrConnectWithoutSourceNodeInput[]
+    upsert?: NodeRelationUpsertWithWhereUniqueWithoutSourceNodeInput | NodeRelationUpsertWithWhereUniqueWithoutSourceNodeInput[]
+    createMany?: NodeRelationCreateManySourceNodeInputEnvelope
+    set?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    disconnect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    delete?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    update?: NodeRelationUpdateWithWhereUniqueWithoutSourceNodeInput | NodeRelationUpdateWithWhereUniqueWithoutSourceNodeInput[]
+    updateMany?: NodeRelationUpdateManyWithWhereWithoutSourceNodeInput | NodeRelationUpdateManyWithWhereWithoutSourceNodeInput[]
+    deleteMany?: NodeRelationScalarWhereInput | NodeRelationScalarWhereInput[]
+  }
+
+  export type NodeRelationUncheckedUpdateManyWithoutTargetNodeNestedInput = {
+    create?: XOR<NodeRelationCreateWithoutTargetNodeInput, NodeRelationUncheckedCreateWithoutTargetNodeInput> | NodeRelationCreateWithoutTargetNodeInput[] | NodeRelationUncheckedCreateWithoutTargetNodeInput[]
+    connectOrCreate?: NodeRelationCreateOrConnectWithoutTargetNodeInput | NodeRelationCreateOrConnectWithoutTargetNodeInput[]
+    upsert?: NodeRelationUpsertWithWhereUniqueWithoutTargetNodeInput | NodeRelationUpsertWithWhereUniqueWithoutTargetNodeInput[]
+    createMany?: NodeRelationCreateManyTargetNodeInputEnvelope
+    set?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    disconnect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    delete?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    connect?: NodeRelationWhereUniqueInput | NodeRelationWhereUniqueInput[]
+    update?: NodeRelationUpdateWithWhereUniqueWithoutTargetNodeInput | NodeRelationUpdateWithWhereUniqueWithoutTargetNodeInput[]
+    updateMany?: NodeRelationUpdateManyWithWhereWithoutTargetNodeInput | NodeRelationUpdateManyWithWhereWithoutTargetNodeInput[]
+    deleteMany?: NodeRelationScalarWhereInput | NodeRelationScalarWhereInput[]
+  }
+
+  export type ProjectCreateNestedOneWithoutNodeRelationsInput = {
+    create?: XOR<ProjectCreateWithoutNodeRelationsInput, ProjectUncheckedCreateWithoutNodeRelationsInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutNodeRelationsInput
+    connect?: ProjectWhereUniqueInput
+  }
+
+  export type LoreNodeCreateNestedOneWithoutOutgoingRelationsInput = {
+    create?: XOR<LoreNodeCreateWithoutOutgoingRelationsInput, LoreNodeUncheckedCreateWithoutOutgoingRelationsInput>
+    connectOrCreate?: LoreNodeCreateOrConnectWithoutOutgoingRelationsInput
+    connect?: LoreNodeWhereUniqueInput
+  }
+
+  export type LoreNodeCreateNestedOneWithoutIncomingRelationsInput = {
+    create?: XOR<LoreNodeCreateWithoutIncomingRelationsInput, LoreNodeUncheckedCreateWithoutIncomingRelationsInput>
+    connectOrCreate?: LoreNodeCreateOrConnectWithoutIncomingRelationsInput
+    connect?: LoreNodeWhereUniqueInput
+  }
+
+  export type ProjectUpdateOneRequiredWithoutNodeRelationsNestedInput = {
+    create?: XOR<ProjectCreateWithoutNodeRelationsInput, ProjectUncheckedCreateWithoutNodeRelationsInput>
+    connectOrCreate?: ProjectCreateOrConnectWithoutNodeRelationsInput
+    upsert?: ProjectUpsertWithoutNodeRelationsInput
+    connect?: ProjectWhereUniqueInput
+    update?: XOR<XOR<ProjectUpdateToOneWithWhereWithoutNodeRelationsInput, ProjectUpdateWithoutNodeRelationsInput>, ProjectUncheckedUpdateWithoutNodeRelationsInput>
+  }
+
+  export type LoreNodeUpdateOneRequiredWithoutOutgoingRelationsNestedInput = {
+    create?: XOR<LoreNodeCreateWithoutOutgoingRelationsInput, LoreNodeUncheckedCreateWithoutOutgoingRelationsInput>
+    connectOrCreate?: LoreNodeCreateOrConnectWithoutOutgoingRelationsInput
+    upsert?: LoreNodeUpsertWithoutOutgoingRelationsInput
+    connect?: LoreNodeWhereUniqueInput
+    update?: XOR<XOR<LoreNodeUpdateToOneWithWhereWithoutOutgoingRelationsInput, LoreNodeUpdateWithoutOutgoingRelationsInput>, LoreNodeUncheckedUpdateWithoutOutgoingRelationsInput>
+  }
+
+  export type LoreNodeUpdateOneRequiredWithoutIncomingRelationsNestedInput = {
+    create?: XOR<LoreNodeCreateWithoutIncomingRelationsInput, LoreNodeUncheckedCreateWithoutIncomingRelationsInput>
+    connectOrCreate?: LoreNodeCreateOrConnectWithoutIncomingRelationsInput
+    upsert?: LoreNodeUpsertWithoutIncomingRelationsInput
+    connect?: LoreNodeWhereUniqueInput
+    update?: XOR<XOR<LoreNodeUpdateToOneWithWhereWithoutIncomingRelationsInput, LoreNodeUpdateWithoutIncomingRelationsInput>, LoreNodeUncheckedUpdateWithoutIncomingRelationsInput>
   }
 
   export type ProjectCreateNestedOneWithoutChaptersInput = {
@@ -20476,6 +22169,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutProjectInput
     lore?: LoreCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationCreateNestedManyWithoutProjectInput
     characters?: CharacterCreateNestedManyWithoutProjectInput
     monsters?: MonsterCreateNestedManyWithoutProjectInput
     items?: ItemCreateNestedManyWithoutProjectInput
@@ -20493,6 +22187,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutProjectInput
     lore?: LoreUncheckedCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeUncheckedCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationUncheckedCreateNestedManyWithoutProjectInput
     characters?: CharacterUncheckedCreateNestedManyWithoutProjectInput
     monsters?: MonsterUncheckedCreateNestedManyWithoutProjectInput
     items?: ItemUncheckedCreateNestedManyWithoutProjectInput
@@ -20828,8 +22523,11 @@ export namespace Prisma {
     name: string
     content?: string | null
     position: number
+    color?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    outgoingRelations?: NodeRelationCreateNestedManyWithoutSourceNodeInput
+    incomingRelations?: NodeRelationCreateNestedManyWithoutTargetNodeInput
   }
 
   export type LoreNodeUncheckedCreateWithoutProjectInput = {
@@ -20838,8 +22536,11 @@ export namespace Prisma {
     name: string
     content?: string | null
     position: number
+    color?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    outgoingRelations?: NodeRelationUncheckedCreateNestedManyWithoutSourceNodeInput
+    incomingRelations?: NodeRelationUncheckedCreateNestedManyWithoutTargetNodeInput
   }
 
   export type LoreNodeCreateOrConnectWithoutProjectInput = {
@@ -20849,6 +22550,30 @@ export namespace Prisma {
 
   export type LoreNodeCreateManyProjectInputEnvelope = {
     data: LoreNodeCreateManyProjectInput | LoreNodeCreateManyProjectInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type NodeRelationCreateWithoutProjectInput = {
+    id?: string
+    createdAt?: Date | string
+    sourceNode: LoreNodeCreateNestedOneWithoutOutgoingRelationsInput
+    targetNode: LoreNodeCreateNestedOneWithoutIncomingRelationsInput
+  }
+
+  export type NodeRelationUncheckedCreateWithoutProjectInput = {
+    id?: string
+    sourceNodeId: string
+    targetNodeId: string
+    createdAt?: Date | string
+  }
+
+  export type NodeRelationCreateOrConnectWithoutProjectInput = {
+    where: NodeRelationWhereUniqueInput
+    create: XOR<NodeRelationCreateWithoutProjectInput, NodeRelationUncheckedCreateWithoutProjectInput>
+  }
+
+  export type NodeRelationCreateManyProjectInputEnvelope = {
+    data: NodeRelationCreateManyProjectInput | NodeRelationCreateManyProjectInput[]
     skipDuplicates?: boolean
   }
 
@@ -21121,8 +22846,36 @@ export namespace Prisma {
     name?: StringFilter<"LoreNode"> | string
     content?: StringNullableFilter<"LoreNode"> | string | null
     position?: FloatFilter<"LoreNode"> | number
+    color?: StringFilter<"LoreNode"> | string
     createdAt?: DateTimeFilter<"LoreNode"> | Date | string
     updatedAt?: DateTimeFilter<"LoreNode"> | Date | string
+  }
+
+  export type NodeRelationUpsertWithWhereUniqueWithoutProjectInput = {
+    where: NodeRelationWhereUniqueInput
+    update: XOR<NodeRelationUpdateWithoutProjectInput, NodeRelationUncheckedUpdateWithoutProjectInput>
+    create: XOR<NodeRelationCreateWithoutProjectInput, NodeRelationUncheckedCreateWithoutProjectInput>
+  }
+
+  export type NodeRelationUpdateWithWhereUniqueWithoutProjectInput = {
+    where: NodeRelationWhereUniqueInput
+    data: XOR<NodeRelationUpdateWithoutProjectInput, NodeRelationUncheckedUpdateWithoutProjectInput>
+  }
+
+  export type NodeRelationUpdateManyWithWhereWithoutProjectInput = {
+    where: NodeRelationScalarWhereInput
+    data: XOR<NodeRelationUpdateManyMutationInput, NodeRelationUncheckedUpdateManyWithoutProjectInput>
+  }
+
+  export type NodeRelationScalarWhereInput = {
+    AND?: NodeRelationScalarWhereInput | NodeRelationScalarWhereInput[]
+    OR?: NodeRelationScalarWhereInput[]
+    NOT?: NodeRelationScalarWhereInput | NodeRelationScalarWhereInput[]
+    id?: StringFilter<"NodeRelation"> | string
+    projectId?: StringFilter<"NodeRelation"> | string
+    sourceNodeId?: StringFilter<"NodeRelation"> | string
+    targetNodeId?: StringFilter<"NodeRelation"> | string
+    createdAt?: DateTimeFilter<"NodeRelation"> | Date | string
   }
 
   export type CharacterUpsertWithWhereUniqueWithoutProjectInput = {
@@ -21284,6 +23037,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutProjectsInput
     chapters?: ChapterCreateNestedManyWithoutProjectInput
     lore?: LoreCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationCreateNestedManyWithoutProjectInput
     characters?: CharacterCreateNestedManyWithoutProjectInput
     monsters?: MonsterCreateNestedManyWithoutProjectInput
     items?: ItemCreateNestedManyWithoutProjectInput
@@ -21301,6 +23055,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     chapters?: ChapterUncheckedCreateNestedManyWithoutProjectInput
     lore?: LoreUncheckedCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationUncheckedCreateNestedManyWithoutProjectInput
     characters?: CharacterUncheckedCreateNestedManyWithoutProjectInput
     monsters?: MonsterUncheckedCreateNestedManyWithoutProjectInput
     items?: ItemUncheckedCreateNestedManyWithoutProjectInput
@@ -21311,6 +23066,54 @@ export namespace Prisma {
   export type ProjectCreateOrConnectWithoutLoreNodesInput = {
     where: ProjectWhereUniqueInput
     create: XOR<ProjectCreateWithoutLoreNodesInput, ProjectUncheckedCreateWithoutLoreNodesInput>
+  }
+
+  export type NodeRelationCreateWithoutSourceNodeInput = {
+    id?: string
+    createdAt?: Date | string
+    project: ProjectCreateNestedOneWithoutNodeRelationsInput
+    targetNode: LoreNodeCreateNestedOneWithoutIncomingRelationsInput
+  }
+
+  export type NodeRelationUncheckedCreateWithoutSourceNodeInput = {
+    id?: string
+    projectId: string
+    targetNodeId: string
+    createdAt?: Date | string
+  }
+
+  export type NodeRelationCreateOrConnectWithoutSourceNodeInput = {
+    where: NodeRelationWhereUniqueInput
+    create: XOR<NodeRelationCreateWithoutSourceNodeInput, NodeRelationUncheckedCreateWithoutSourceNodeInput>
+  }
+
+  export type NodeRelationCreateManySourceNodeInputEnvelope = {
+    data: NodeRelationCreateManySourceNodeInput | NodeRelationCreateManySourceNodeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type NodeRelationCreateWithoutTargetNodeInput = {
+    id?: string
+    createdAt?: Date | string
+    project: ProjectCreateNestedOneWithoutNodeRelationsInput
+    sourceNode: LoreNodeCreateNestedOneWithoutOutgoingRelationsInput
+  }
+
+  export type NodeRelationUncheckedCreateWithoutTargetNodeInput = {
+    id?: string
+    projectId: string
+    sourceNodeId: string
+    createdAt?: Date | string
+  }
+
+  export type NodeRelationCreateOrConnectWithoutTargetNodeInput = {
+    where: NodeRelationWhereUniqueInput
+    create: XOR<NodeRelationCreateWithoutTargetNodeInput, NodeRelationUncheckedCreateWithoutTargetNodeInput>
+  }
+
+  export type NodeRelationCreateManyTargetNodeInputEnvelope = {
+    data: NodeRelationCreateManyTargetNodeInput | NodeRelationCreateManyTargetNodeInput[]
+    skipDuplicates?: boolean
   }
 
   export type ProjectUpsertWithoutLoreNodesInput = {
@@ -21334,6 +23137,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutProjectsNestedInput
     chapters?: ChapterUpdateManyWithoutProjectNestedInput
     lore?: LoreUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUpdateManyWithoutProjectNestedInput
     characters?: CharacterUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUpdateManyWithoutProjectNestedInput
     items?: ItemUpdateManyWithoutProjectNestedInput
@@ -21351,11 +23155,268 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     chapters?: ChapterUncheckedUpdateManyWithoutProjectNestedInput
     lore?: LoreUncheckedUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUncheckedUpdateManyWithoutProjectNestedInput
     characters?: CharacterUncheckedUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUncheckedUpdateManyWithoutProjectNestedInput
     items?: ItemUncheckedUpdateManyWithoutProjectNestedInput
     powerSystems?: PowerSystemUncheckedUpdateManyWithoutProjectNestedInput
     locations?: LocationUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type NodeRelationUpsertWithWhereUniqueWithoutSourceNodeInput = {
+    where: NodeRelationWhereUniqueInput
+    update: XOR<NodeRelationUpdateWithoutSourceNodeInput, NodeRelationUncheckedUpdateWithoutSourceNodeInput>
+    create: XOR<NodeRelationCreateWithoutSourceNodeInput, NodeRelationUncheckedCreateWithoutSourceNodeInput>
+  }
+
+  export type NodeRelationUpdateWithWhereUniqueWithoutSourceNodeInput = {
+    where: NodeRelationWhereUniqueInput
+    data: XOR<NodeRelationUpdateWithoutSourceNodeInput, NodeRelationUncheckedUpdateWithoutSourceNodeInput>
+  }
+
+  export type NodeRelationUpdateManyWithWhereWithoutSourceNodeInput = {
+    where: NodeRelationScalarWhereInput
+    data: XOR<NodeRelationUpdateManyMutationInput, NodeRelationUncheckedUpdateManyWithoutSourceNodeInput>
+  }
+
+  export type NodeRelationUpsertWithWhereUniqueWithoutTargetNodeInput = {
+    where: NodeRelationWhereUniqueInput
+    update: XOR<NodeRelationUpdateWithoutTargetNodeInput, NodeRelationUncheckedUpdateWithoutTargetNodeInput>
+    create: XOR<NodeRelationCreateWithoutTargetNodeInput, NodeRelationUncheckedCreateWithoutTargetNodeInput>
+  }
+
+  export type NodeRelationUpdateWithWhereUniqueWithoutTargetNodeInput = {
+    where: NodeRelationWhereUniqueInput
+    data: XOR<NodeRelationUpdateWithoutTargetNodeInput, NodeRelationUncheckedUpdateWithoutTargetNodeInput>
+  }
+
+  export type NodeRelationUpdateManyWithWhereWithoutTargetNodeInput = {
+    where: NodeRelationScalarWhereInput
+    data: XOR<NodeRelationUpdateManyMutationInput, NodeRelationUncheckedUpdateManyWithoutTargetNodeInput>
+  }
+
+  export type ProjectCreateWithoutNodeRelationsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    genre?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutProjectsInput
+    chapters?: ChapterCreateNestedManyWithoutProjectInput
+    lore?: LoreCreateNestedManyWithoutProjectInput
+    loreNodes?: LoreNodeCreateNestedManyWithoutProjectInput
+    characters?: CharacterCreateNestedManyWithoutProjectInput
+    monsters?: MonsterCreateNestedManyWithoutProjectInput
+    items?: ItemCreateNestedManyWithoutProjectInput
+    powerSystems?: PowerSystemCreateNestedManyWithoutProjectInput
+    locations?: LocationCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectUncheckedCreateWithoutNodeRelationsInput = {
+    id?: string
+    userId: string
+    name: string
+    description?: string | null
+    genre?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    chapters?: ChapterUncheckedCreateNestedManyWithoutProjectInput
+    lore?: LoreUncheckedCreateNestedManyWithoutProjectInput
+    loreNodes?: LoreNodeUncheckedCreateNestedManyWithoutProjectInput
+    characters?: CharacterUncheckedCreateNestedManyWithoutProjectInput
+    monsters?: MonsterUncheckedCreateNestedManyWithoutProjectInput
+    items?: ItemUncheckedCreateNestedManyWithoutProjectInput
+    powerSystems?: PowerSystemUncheckedCreateNestedManyWithoutProjectInput
+    locations?: LocationUncheckedCreateNestedManyWithoutProjectInput
+  }
+
+  export type ProjectCreateOrConnectWithoutNodeRelationsInput = {
+    where: ProjectWhereUniqueInput
+    create: XOR<ProjectCreateWithoutNodeRelationsInput, ProjectUncheckedCreateWithoutNodeRelationsInput>
+  }
+
+  export type LoreNodeCreateWithoutOutgoingRelationsInput = {
+    id?: string
+    type: string
+    name: string
+    content?: string | null
+    position: number
+    color?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    project: ProjectCreateNestedOneWithoutLoreNodesInput
+    incomingRelations?: NodeRelationCreateNestedManyWithoutTargetNodeInput
+  }
+
+  export type LoreNodeUncheckedCreateWithoutOutgoingRelationsInput = {
+    id?: string
+    projectId: string
+    type: string
+    name: string
+    content?: string | null
+    position: number
+    color?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    incomingRelations?: NodeRelationUncheckedCreateNestedManyWithoutTargetNodeInput
+  }
+
+  export type LoreNodeCreateOrConnectWithoutOutgoingRelationsInput = {
+    where: LoreNodeWhereUniqueInput
+    create: XOR<LoreNodeCreateWithoutOutgoingRelationsInput, LoreNodeUncheckedCreateWithoutOutgoingRelationsInput>
+  }
+
+  export type LoreNodeCreateWithoutIncomingRelationsInput = {
+    id?: string
+    type: string
+    name: string
+    content?: string | null
+    position: number
+    color?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    project: ProjectCreateNestedOneWithoutLoreNodesInput
+    outgoingRelations?: NodeRelationCreateNestedManyWithoutSourceNodeInput
+  }
+
+  export type LoreNodeUncheckedCreateWithoutIncomingRelationsInput = {
+    id?: string
+    projectId: string
+    type: string
+    name: string
+    content?: string | null
+    position: number
+    color?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    outgoingRelations?: NodeRelationUncheckedCreateNestedManyWithoutSourceNodeInput
+  }
+
+  export type LoreNodeCreateOrConnectWithoutIncomingRelationsInput = {
+    where: LoreNodeWhereUniqueInput
+    create: XOR<LoreNodeCreateWithoutIncomingRelationsInput, LoreNodeUncheckedCreateWithoutIncomingRelationsInput>
+  }
+
+  export type ProjectUpsertWithoutNodeRelationsInput = {
+    update: XOR<ProjectUpdateWithoutNodeRelationsInput, ProjectUncheckedUpdateWithoutNodeRelationsInput>
+    create: XOR<ProjectCreateWithoutNodeRelationsInput, ProjectUncheckedCreateWithoutNodeRelationsInput>
+    where?: ProjectWhereInput
+  }
+
+  export type ProjectUpdateToOneWithWhereWithoutNodeRelationsInput = {
+    where?: ProjectWhereInput
+    data: XOR<ProjectUpdateWithoutNodeRelationsInput, ProjectUncheckedUpdateWithoutNodeRelationsInput>
+  }
+
+  export type ProjectUpdateWithoutNodeRelationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    genre?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutProjectsNestedInput
+    chapters?: ChapterUpdateManyWithoutProjectNestedInput
+    lore?: LoreUpdateManyWithoutProjectNestedInput
+    loreNodes?: LoreNodeUpdateManyWithoutProjectNestedInput
+    characters?: CharacterUpdateManyWithoutProjectNestedInput
+    monsters?: MonsterUpdateManyWithoutProjectNestedInput
+    items?: ItemUpdateManyWithoutProjectNestedInput
+    powerSystems?: PowerSystemUpdateManyWithoutProjectNestedInput
+    locations?: LocationUpdateManyWithoutProjectNestedInput
+  }
+
+  export type ProjectUncheckedUpdateWithoutNodeRelationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    genre?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    chapters?: ChapterUncheckedUpdateManyWithoutProjectNestedInput
+    lore?: LoreUncheckedUpdateManyWithoutProjectNestedInput
+    loreNodes?: LoreNodeUncheckedUpdateManyWithoutProjectNestedInput
+    characters?: CharacterUncheckedUpdateManyWithoutProjectNestedInput
+    monsters?: MonsterUncheckedUpdateManyWithoutProjectNestedInput
+    items?: ItemUncheckedUpdateManyWithoutProjectNestedInput
+    powerSystems?: PowerSystemUncheckedUpdateManyWithoutProjectNestedInput
+    locations?: LocationUncheckedUpdateManyWithoutProjectNestedInput
+  }
+
+  export type LoreNodeUpsertWithoutOutgoingRelationsInput = {
+    update: XOR<LoreNodeUpdateWithoutOutgoingRelationsInput, LoreNodeUncheckedUpdateWithoutOutgoingRelationsInput>
+    create: XOR<LoreNodeCreateWithoutOutgoingRelationsInput, LoreNodeUncheckedCreateWithoutOutgoingRelationsInput>
+    where?: LoreNodeWhereInput
+  }
+
+  export type LoreNodeUpdateToOneWithWhereWithoutOutgoingRelationsInput = {
+    where?: LoreNodeWhereInput
+    data: XOR<LoreNodeUpdateWithoutOutgoingRelationsInput, LoreNodeUncheckedUpdateWithoutOutgoingRelationsInput>
+  }
+
+  export type LoreNodeUpdateWithoutOutgoingRelationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectUpdateOneRequiredWithoutLoreNodesNestedInput
+    incomingRelations?: NodeRelationUpdateManyWithoutTargetNodeNestedInput
+  }
+
+  export type LoreNodeUncheckedUpdateWithoutOutgoingRelationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    incomingRelations?: NodeRelationUncheckedUpdateManyWithoutTargetNodeNestedInput
+  }
+
+  export type LoreNodeUpsertWithoutIncomingRelationsInput = {
+    update: XOR<LoreNodeUpdateWithoutIncomingRelationsInput, LoreNodeUncheckedUpdateWithoutIncomingRelationsInput>
+    create: XOR<LoreNodeCreateWithoutIncomingRelationsInput, LoreNodeUncheckedCreateWithoutIncomingRelationsInput>
+    where?: LoreNodeWhereInput
+  }
+
+  export type LoreNodeUpdateToOneWithWhereWithoutIncomingRelationsInput = {
+    where?: LoreNodeWhereInput
+    data: XOR<LoreNodeUpdateWithoutIncomingRelationsInput, LoreNodeUncheckedUpdateWithoutIncomingRelationsInput>
+  }
+
+  export type LoreNodeUpdateWithoutIncomingRelationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectUpdateOneRequiredWithoutLoreNodesNestedInput
+    outgoingRelations?: NodeRelationUpdateManyWithoutSourceNodeNestedInput
+  }
+
+  export type LoreNodeUncheckedUpdateWithoutIncomingRelationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
+    position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    outgoingRelations?: NodeRelationUncheckedUpdateManyWithoutSourceNodeNestedInput
   }
 
   export type ProjectCreateWithoutChaptersInput = {
@@ -21368,6 +23429,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutProjectsInput
     lore?: LoreCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationCreateNestedManyWithoutProjectInput
     characters?: CharacterCreateNestedManyWithoutProjectInput
     monsters?: MonsterCreateNestedManyWithoutProjectInput
     items?: ItemCreateNestedManyWithoutProjectInput
@@ -21385,6 +23447,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     lore?: LoreUncheckedCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeUncheckedCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationUncheckedCreateNestedManyWithoutProjectInput
     characters?: CharacterUncheckedCreateNestedManyWithoutProjectInput
     monsters?: MonsterUncheckedCreateNestedManyWithoutProjectInput
     items?: ItemUncheckedCreateNestedManyWithoutProjectInput
@@ -21418,6 +23481,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutProjectsNestedInput
     lore?: LoreUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUpdateManyWithoutProjectNestedInput
     characters?: CharacterUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUpdateManyWithoutProjectNestedInput
     items?: ItemUpdateManyWithoutProjectNestedInput
@@ -21435,6 +23499,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lore?: LoreUncheckedUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUncheckedUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUncheckedUpdateManyWithoutProjectNestedInput
     characters?: CharacterUncheckedUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUncheckedUpdateManyWithoutProjectNestedInput
     items?: ItemUncheckedUpdateManyWithoutProjectNestedInput
@@ -21452,6 +23517,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutProjectsInput
     chapters?: ChapterCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationCreateNestedManyWithoutProjectInput
     characters?: CharacterCreateNestedManyWithoutProjectInput
     monsters?: MonsterCreateNestedManyWithoutProjectInput
     items?: ItemCreateNestedManyWithoutProjectInput
@@ -21469,6 +23535,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     chapters?: ChapterUncheckedCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeUncheckedCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationUncheckedCreateNestedManyWithoutProjectInput
     characters?: CharacterUncheckedCreateNestedManyWithoutProjectInput
     monsters?: MonsterUncheckedCreateNestedManyWithoutProjectInput
     items?: ItemUncheckedCreateNestedManyWithoutProjectInput
@@ -21502,6 +23569,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutProjectsNestedInput
     chapters?: ChapterUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUpdateManyWithoutProjectNestedInput
     characters?: CharacterUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUpdateManyWithoutProjectNestedInput
     items?: ItemUpdateManyWithoutProjectNestedInput
@@ -21519,6 +23587,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     chapters?: ChapterUncheckedUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUncheckedUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUncheckedUpdateManyWithoutProjectNestedInput
     characters?: CharacterUncheckedUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUncheckedUpdateManyWithoutProjectNestedInput
     items?: ItemUncheckedUpdateManyWithoutProjectNestedInput
@@ -21537,6 +23606,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutProjectInput
     lore?: LoreCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationCreateNestedManyWithoutProjectInput
     monsters?: MonsterCreateNestedManyWithoutProjectInput
     items?: ItemCreateNestedManyWithoutProjectInput
     powerSystems?: PowerSystemCreateNestedManyWithoutProjectInput
@@ -21554,6 +23624,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutProjectInput
     lore?: LoreUncheckedCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeUncheckedCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationUncheckedCreateNestedManyWithoutProjectInput
     monsters?: MonsterUncheckedCreateNestedManyWithoutProjectInput
     items?: ItemUncheckedCreateNestedManyWithoutProjectInput
     powerSystems?: PowerSystemUncheckedCreateNestedManyWithoutProjectInput
@@ -21587,6 +23658,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutProjectNestedInput
     lore?: LoreUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUpdateManyWithoutProjectNestedInput
     items?: ItemUpdateManyWithoutProjectNestedInput
     powerSystems?: PowerSystemUpdateManyWithoutProjectNestedInput
@@ -21604,6 +23676,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutProjectNestedInput
     lore?: LoreUncheckedUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUncheckedUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUncheckedUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUncheckedUpdateManyWithoutProjectNestedInput
     items?: ItemUncheckedUpdateManyWithoutProjectNestedInput
     powerSystems?: PowerSystemUncheckedUpdateManyWithoutProjectNestedInput
@@ -21621,6 +23694,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutProjectInput
     lore?: LoreCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationCreateNestedManyWithoutProjectInput
     characters?: CharacterCreateNestedManyWithoutProjectInput
     items?: ItemCreateNestedManyWithoutProjectInput
     powerSystems?: PowerSystemCreateNestedManyWithoutProjectInput
@@ -21638,6 +23712,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutProjectInput
     lore?: LoreUncheckedCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeUncheckedCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationUncheckedCreateNestedManyWithoutProjectInput
     characters?: CharacterUncheckedCreateNestedManyWithoutProjectInput
     items?: ItemUncheckedCreateNestedManyWithoutProjectInput
     powerSystems?: PowerSystemUncheckedCreateNestedManyWithoutProjectInput
@@ -21671,6 +23746,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutProjectNestedInput
     lore?: LoreUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUpdateManyWithoutProjectNestedInput
     characters?: CharacterUpdateManyWithoutProjectNestedInput
     items?: ItemUpdateManyWithoutProjectNestedInput
     powerSystems?: PowerSystemUpdateManyWithoutProjectNestedInput
@@ -21688,6 +23764,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutProjectNestedInput
     lore?: LoreUncheckedUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUncheckedUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUncheckedUpdateManyWithoutProjectNestedInput
     characters?: CharacterUncheckedUpdateManyWithoutProjectNestedInput
     items?: ItemUncheckedUpdateManyWithoutProjectNestedInput
     powerSystems?: PowerSystemUncheckedUpdateManyWithoutProjectNestedInput
@@ -21705,6 +23782,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutProjectInput
     lore?: LoreCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationCreateNestedManyWithoutProjectInput
     characters?: CharacterCreateNestedManyWithoutProjectInput
     monsters?: MonsterCreateNestedManyWithoutProjectInput
     powerSystems?: PowerSystemCreateNestedManyWithoutProjectInput
@@ -21722,6 +23800,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutProjectInput
     lore?: LoreUncheckedCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeUncheckedCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationUncheckedCreateNestedManyWithoutProjectInput
     characters?: CharacterUncheckedCreateNestedManyWithoutProjectInput
     monsters?: MonsterUncheckedCreateNestedManyWithoutProjectInput
     powerSystems?: PowerSystemUncheckedCreateNestedManyWithoutProjectInput
@@ -21755,6 +23834,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutProjectNestedInput
     lore?: LoreUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUpdateManyWithoutProjectNestedInput
     characters?: CharacterUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUpdateManyWithoutProjectNestedInput
     powerSystems?: PowerSystemUpdateManyWithoutProjectNestedInput
@@ -21772,6 +23852,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutProjectNestedInput
     lore?: LoreUncheckedUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUncheckedUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUncheckedUpdateManyWithoutProjectNestedInput
     characters?: CharacterUncheckedUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUncheckedUpdateManyWithoutProjectNestedInput
     powerSystems?: PowerSystemUncheckedUpdateManyWithoutProjectNestedInput
@@ -21789,6 +23870,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutProjectInput
     lore?: LoreCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationCreateNestedManyWithoutProjectInput
     characters?: CharacterCreateNestedManyWithoutProjectInput
     monsters?: MonsterCreateNestedManyWithoutProjectInput
     items?: ItemCreateNestedManyWithoutProjectInput
@@ -21806,6 +23888,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutProjectInput
     lore?: LoreUncheckedCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeUncheckedCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationUncheckedCreateNestedManyWithoutProjectInput
     characters?: CharacterUncheckedCreateNestedManyWithoutProjectInput
     monsters?: MonsterUncheckedCreateNestedManyWithoutProjectInput
     items?: ItemUncheckedCreateNestedManyWithoutProjectInput
@@ -21839,6 +23922,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutProjectNestedInput
     lore?: LoreUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUpdateManyWithoutProjectNestedInput
     characters?: CharacterUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUpdateManyWithoutProjectNestedInput
     items?: ItemUpdateManyWithoutProjectNestedInput
@@ -21856,6 +23940,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutProjectNestedInput
     lore?: LoreUncheckedUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUncheckedUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUncheckedUpdateManyWithoutProjectNestedInput
     characters?: CharacterUncheckedUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUncheckedUpdateManyWithoutProjectNestedInput
     items?: ItemUncheckedUpdateManyWithoutProjectNestedInput
@@ -21873,6 +23958,7 @@ export namespace Prisma {
     chapters?: ChapterCreateNestedManyWithoutProjectInput
     lore?: LoreCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationCreateNestedManyWithoutProjectInput
     characters?: CharacterCreateNestedManyWithoutProjectInput
     monsters?: MonsterCreateNestedManyWithoutProjectInput
     items?: ItemCreateNestedManyWithoutProjectInput
@@ -21890,6 +23976,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedCreateNestedManyWithoutProjectInput
     lore?: LoreUncheckedCreateNestedManyWithoutProjectInput
     loreNodes?: LoreNodeUncheckedCreateNestedManyWithoutProjectInput
+    nodeRelations?: NodeRelationUncheckedCreateNestedManyWithoutProjectInput
     characters?: CharacterUncheckedCreateNestedManyWithoutProjectInput
     monsters?: MonsterUncheckedCreateNestedManyWithoutProjectInput
     items?: ItemUncheckedCreateNestedManyWithoutProjectInput
@@ -21923,6 +24010,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutProjectNestedInput
     lore?: LoreUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUpdateManyWithoutProjectNestedInput
     characters?: CharacterUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUpdateManyWithoutProjectNestedInput
     items?: ItemUpdateManyWithoutProjectNestedInput
@@ -21940,6 +24028,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutProjectNestedInput
     lore?: LoreUncheckedUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUncheckedUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUncheckedUpdateManyWithoutProjectNestedInput
     characters?: CharacterUncheckedUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUncheckedUpdateManyWithoutProjectNestedInput
     items?: ItemUncheckedUpdateManyWithoutProjectNestedInput
@@ -22045,6 +24134,7 @@ export namespace Prisma {
     chapters?: ChapterUpdateManyWithoutProjectNestedInput
     lore?: LoreUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUpdateManyWithoutProjectNestedInput
     characters?: CharacterUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUpdateManyWithoutProjectNestedInput
     items?: ItemUpdateManyWithoutProjectNestedInput
@@ -22062,6 +24152,7 @@ export namespace Prisma {
     chapters?: ChapterUncheckedUpdateManyWithoutProjectNestedInput
     lore?: LoreUncheckedUpdateManyWithoutProjectNestedInput
     loreNodes?: LoreNodeUncheckedUpdateManyWithoutProjectNestedInput
+    nodeRelations?: NodeRelationUncheckedUpdateManyWithoutProjectNestedInput
     characters?: CharacterUncheckedUpdateManyWithoutProjectNestedInput
     monsters?: MonsterUncheckedUpdateManyWithoutProjectNestedInput
     items?: ItemUncheckedUpdateManyWithoutProjectNestedInput
@@ -22102,8 +24193,16 @@ export namespace Prisma {
     name: string
     content?: string | null
     position: number
+    color?: string
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type NodeRelationCreateManyProjectInput = {
+    id?: string
+    sourceNodeId: string
+    targetNodeId: string
+    createdAt?: Date | string
   }
 
   export type CharacterCreateManyProjectInput = {
@@ -22215,8 +24314,11 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     content?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    outgoingRelations?: NodeRelationUpdateManyWithoutSourceNodeNestedInput
+    incomingRelations?: NodeRelationUpdateManyWithoutTargetNodeNestedInput
   }
 
   export type LoreNodeUncheckedUpdateWithoutProjectInput = {
@@ -22225,8 +24327,11 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     content?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    outgoingRelations?: NodeRelationUncheckedUpdateManyWithoutSourceNodeNestedInput
+    incomingRelations?: NodeRelationUncheckedUpdateManyWithoutTargetNodeNestedInput
   }
 
   export type LoreNodeUncheckedUpdateManyWithoutProjectInput = {
@@ -22235,8 +24340,30 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     content?: NullableStringFieldUpdateOperationsInput | string | null
     position?: FloatFieldUpdateOperationsInput | number
+    color?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NodeRelationUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceNode?: LoreNodeUpdateOneRequiredWithoutOutgoingRelationsNestedInput
+    targetNode?: LoreNodeUpdateOneRequiredWithoutIncomingRelationsNestedInput
+  }
+
+  export type NodeRelationUncheckedUpdateWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceNodeId?: StringFieldUpdateOperationsInput | string
+    targetNodeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NodeRelationUncheckedUpdateManyWithoutProjectInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceNodeId?: StringFieldUpdateOperationsInput | string
+    targetNodeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CharacterUpdateWithoutProjectInput = {
@@ -22384,6 +24511,62 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NodeRelationCreateManySourceNodeInput = {
+    id?: string
+    projectId: string
+    targetNodeId: string
+    createdAt?: Date | string
+  }
+
+  export type NodeRelationCreateManyTargetNodeInput = {
+    id?: string
+    projectId: string
+    sourceNodeId: string
+    createdAt?: Date | string
+  }
+
+  export type NodeRelationUpdateWithoutSourceNodeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectUpdateOneRequiredWithoutNodeRelationsNestedInput
+    targetNode?: LoreNodeUpdateOneRequiredWithoutIncomingRelationsNestedInput
+  }
+
+  export type NodeRelationUncheckedUpdateWithoutSourceNodeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    targetNodeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NodeRelationUncheckedUpdateManyWithoutSourceNodeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    targetNodeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NodeRelationUpdateWithoutTargetNodeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    project?: ProjectUpdateOneRequiredWithoutNodeRelationsNestedInput
+    sourceNode?: LoreNodeUpdateOneRequiredWithoutOutgoingRelationsNestedInput
+  }
+
+  export type NodeRelationUncheckedUpdateWithoutTargetNodeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    sourceNodeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NodeRelationUncheckedUpdateManyWithoutTargetNodeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    projectId?: StringFieldUpdateOperationsInput | string
+    sourceNodeId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

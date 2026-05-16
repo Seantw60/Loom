@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { EditorContent, useEditor } from '@tiptap/react';
 import { Extension } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import Link from '@tiptap/extension-link';
 import { TextStyle } from '@tiptap/extension-text-style';
 import FontFamily from '@tiptap/extension-font-family';
 import Color from '@tiptap/extension-color';
@@ -77,6 +78,12 @@ interface Props {
   onChange: (html: string) => void;
   placeholder?: string;
   minHeightClassName?: string;
+  nodeSuggestions?: Array<{
+    id: string;
+    name: string;
+    color?: string;
+    label?: string;
+  }>;
 }
 
 interface GlyphIconProps {
@@ -212,7 +219,15 @@ export default function RichTextEditor({
   onChange,
   placeholder = 'Write rich node details...',
   minHeightClassName = 'min-h-[9rem]',
+  nodeSuggestions = [],
 }: Props) {
+  const [mentionState, setMentionState] = useState<{
+    active: boolean;
+    from: number;
+    to: number;
+    query: string;
+  }>({ active: false, from: 0, to: 0, query: '' });
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -223,6 +238,11 @@ export default function RichTextEditor({
       FontSize,
       Color,
       Highlight.configure({ multicolor: true }),
+      Link.configure({
+        autolink: false,
+        openOnClick: false,
+        protocols: ['node'],
+      }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
@@ -244,6 +264,85 @@ export default function RichTextEditor({
       onChange(activeEditor.getHTML());
     },
   });
+
+  const filteredNodeSuggestions = useMemo(() => {
+    if (!mentionState.active || nodeSuggestions.length === 0) return [];
+
+    const query = mentionState.query.trim().toLowerCase();
+    return nodeSuggestions
+      .filter((suggestion) => suggestion.name.toLowerCase() !== '' && suggestion.name.toLowerCase() !== query)
+      .filter((suggestion) => {
+        if (!query) return true;
+        return suggestion.name.toLowerCase().includes(query);
+      })
+      .slice(0, 6);
+  }, [mentionState.active, mentionState.query, nodeSuggestions]);
+
+  useEffect(() => {
+    if (!editor || nodeSuggestions.length === 0) return;
+
+    const updateMentionState = () => {
+      const { from } = editor.state.selection;
+      const blockStart = editor.state.doc.resolve(from).start();
+      const textBeforeCursor = editor.state.doc.textBetween(blockStart, from, '\n', '\n');
+      const triggerIndex = textBeforeCursor.lastIndexOf('node:');
+
+      if (triggerIndex < 0) {
+        setMentionState({ active: false, from: 0, to: 0, query: '' });
+        return;
+      }
+
+      const query = textBeforeCursor.slice(triggerIndex + 5);
+      if (query.includes(' ') || /[^\w-]/.test(query)) {
+        setMentionState({ active: false, from: 0, to: 0, query: '' });
+        return;
+      }
+
+      setMentionState({
+        active: true,
+        from: blockStart + triggerIndex,
+        to: from,
+        query,
+      });
+    };
+
+    editor.on('selectionUpdate', updateMentionState);
+    editor.on('update', updateMentionState);
+    updateMentionState();
+
+    return () => {
+      editor.off('selectionUpdate', updateMentionState);
+      editor.off('update', updateMentionState);
+    };
+  }, [editor, nodeSuggestions.length]);
+
+  function insertNodeSuggestion(suggestion: { id: string; name: string; color?: string }) {
+    if (!editor || !mentionState.active) return;
+
+    const nodeColor = suggestion.color || '#3b82f6';
+    // Convert hex to rgba for proper highlight
+    const rgbaColor = hexToRgba(nodeColor, 0.2);
+    const mentionText = suggestion.name;
+    
+    editor
+      .chain()
+      .focus()
+      .deleteRange({ from: mentionState.from, to: mentionState.to })
+      .insertContent(mentionText)
+      .setTextSelection({ from: mentionState.from, to: mentionState.from + mentionText.length })
+      .setHighlight({ color: rgbaColor })
+      .setLink({ href: `node:${suggestion.id}` })
+      .run();
+
+    setMentionState({ active: false, from: 0, to: 0, query: '' });
+  }
+
+  function hexToRgba(hex: string, alpha: number): string {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
 
   useEffect(() => {
     if (!editor) return;
@@ -618,6 +717,37 @@ export default function RichTextEditor({
           </motion.button>
         </div>
       </div>
+
+      {mentionState.active && filteredNodeSuggestions.length > 0 && (
+        <div className="border-b border-slate-700/80 bg-slate-900/80 px-3 py-2">
+          <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-slate-500">Type <code className="text-cyan-300">node:</code> to link nodes</p>
+          <div className="flex flex-wrap gap-2">
+            {filteredNodeSuggestions.map((suggestion) => (
+              <motion.button
+                key={suggestion.id}
+                type="button"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  insertNodeSuggestion(suggestion);
+                }}
+                className="flex items-center gap-2 rounded-full border border-slate-600 bg-slate-800 px-3 py-1.5 text-xs text-slate-100 transition-all hover:border-slate-500"
+                style={{
+                  borderColor: (suggestion.color || '#3b82f6') + '60',
+                  backgroundColor: (suggestion.color || '#3b82f6') + '15',
+                }}
+              >
+                <div
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: suggestion.color || '#3b82f6' }}
+                />
+                <span>{suggestion.label || suggestion.name}</span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <EditorContent editor={editor} />
     </div>

@@ -11,7 +11,8 @@
     "type-check": "tsc --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "relations:backfill": "node scripts/backfill-node-relations.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

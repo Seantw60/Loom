@@ -1,6 +1,7 @@
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { neonConfig } from '@neondatabase/serverless';
 import { PrismaClient } from '@/prisma/generated';
+import generatedPackage from '@/prisma/generated/package.json';
 import ws from 'ws';
 
 if (!process.env.DATABASE_URL) {
@@ -10,13 +11,25 @@ if (!process.env.DATABASE_URL) {
 neonConfig.webSocketConstructor = ws;
 const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+const generatedClientFingerprint = generatedPackage.name;
+
+const globalForPrisma = globalThis as unknown as {
+  prisma?: PrismaClient;
+  prismaFingerprint?: string;
+};
+
+const shouldReuseCachedClient =
+  !!globalForPrisma.prisma &&
+  globalForPrisma.prismaFingerprint === generatedClientFingerprint;
 
 export const prisma =
-  globalForPrisma.prisma ??
+  (shouldReuseCachedClient ? globalForPrisma.prisma : undefined) ??
   new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    log: ['error'],
   });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+  globalForPrisma.prismaFingerprint = generatedClientFingerprint;
+}

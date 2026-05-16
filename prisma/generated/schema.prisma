@@ -75,9 +75,10 @@ model Project {
   description String?
   genre       String?
 
-  chapters  Chapter[]
-  lore      Lore[]
-  loreNodes LoreNode[]
+  chapters      Chapter[]
+  lore          Lore[]
+  loreNodes     LoreNode[]
+  nodeRelations NodeRelation[]
 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -100,12 +101,35 @@ model LoreNode {
   name     String
   content  String? @db.Text
   position Float // 0–1 placement along the timeline ribbon
+  color    String  @default("#3b82f6") // Hex color for highlighting; type-based default
+
+  outgoingRelations NodeRelation[] @relation("SourceNodeRelations")
+  incomingRelations NodeRelation[] @relation("TargetNodeRelations")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([projectId])
   @@index([type])
+}
+
+// Directed relationship between two continuum nodes.
+model NodeRelation {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  sourceNodeId String
+  targetNodeId String
+  sourceNode   LoreNode @relation("SourceNodeRelations", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  targetNode   LoreNode @relation("TargetNodeRelations", fields: [targetNodeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([sourceNodeId, targetNodeId])
+  @@index([projectId])
+  @@index([sourceNodeId])
+  @@index([targetNodeId])
 }
 
 model Chapter {

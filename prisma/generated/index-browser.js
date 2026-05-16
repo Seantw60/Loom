@@ -176,8 +176,17 @@ exports.Prisma.LoreNodeScalarFieldEnum = {
   name: 'name',
   content: 'content',
   position: 'position',
+  color: 'color',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NodeRelationScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  sourceNodeId: 'sourceNodeId',
+  targetNodeId: 'targetNodeId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.ChapterScalarFieldEnum = {
@@ -277,6 +286,7 @@ exports.Prisma.ModelName = {
   VerificationToken: 'VerificationToken',
   Project: 'Project',
   LoreNode: 'LoreNode',
+  NodeRelation: 'NodeRelation',
   Chapter: 'Chapter',
   Lore: 'Lore',
   Character: 'Character',

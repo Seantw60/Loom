@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import RichTextEditor from '@/components/Shared/RichTextEditor';
 
 // Color palette per ribbon type
@@ -20,12 +20,20 @@ interface LoreNode {
   name: string;
   content?: string | null;
   position: number;
+  color?: string;
   createdAt?: string;
+  branchFromNodeId?: string | null;
+  relatedNodeIds?: string[];
 }
 
 const MAX_VITALITY_NODES = 18;
 const LIFeless_RIBBON_COLOR = '#6b7280';
 const MAX_RIBBON_VITALITY_NODES = 4;
+const RIBBON_POSITION_MIN = 0.05;
+const RIBBON_POSITION_MAX = 0.95;
+const UNFURLED_RIBBON_GAP = 132;
+const UNFURLED_RIBBON_Y_OFFSET = 30;
+const UNFURLED_VIEWBOX_HEIGHT = RIBBON_CONFIG.length * UNFURLED_RIBBON_GAP + 52;
 
 const BRAID_PATH_WIDTH = 1900;
 
@@ -93,22 +101,109 @@ const nodeVariants = {
   }),
 };
 
+interface SpaceStar {
+  id: string;
+  left: number;
+  top: number;
+  size: number;
+  opacity: number;
+  twinkle: number;
+  driftX: number;
+  driftY: number;
+  duration: number;
+  delay: number;
+}
+
+function createSeededRandom(seed: string) {
+  let hash = 2166136261;
+
+  for (let index = 0; index < seed.length; index += 1) {
+    hash ^= seed.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return () => {
+    hash += hash << 13;
+    hash ^= hash >>> 7;
+    hash += hash << 3;
+    hash ^= hash >>> 17;
+    hash += hash << 5;
+
+    return (hash >>> 0) / 4294967296;
+  };
+}
+
+function buildSpaceScene(seed: string) {
+  const random = createSeededRandom(seed);
+
+  const stars: SpaceStar[] = Array.from({ length: 200 }, (_, index) => {
+    const depth = random();
+    return {
+      id: `star-${index}`,
+      left: random() * 100,
+      top: random() * 100,
+      size: 0.5 + depth * 2.6,
+      opacity: 0.18 + depth * 0.72,
+      twinkle: 0.82 + random() * 0.34,
+      driftX: -28 + random() * 56,
+      driftY: -22 + random() * 44,
+      duration: 10 + random() * 18,
+      delay: -random() * 14,
+    };
+  });
+
+  return { stars };
+}
+
+function hashStringToUnit(value: string) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(index);
+    hash |= 0;
+  }
+
+  return (Math.abs(hash) % 1000) / 1000;
+}
+
+function buildBranchRibbonPath(sourceX: number, sourceY: number, endX: number, endY: number, wave = 0) {
+  const launchX = Math.min(98, sourceX + 6.4);
+  const launchY = sourceY - 9.8 + wave * 0.32;
+  const midX = launchX + (endX - launchX) * 0.36;
+  const midY = Math.min(launchY, endY) - 8.6 + wave;
+
+  return [
+    `M ${sourceX.toFixed(2)} ${sourceY.toFixed(2)}`,
+    `C ${(sourceX + 2.7).toFixed(2)} ${(sourceY + wave * 0.16).toFixed(2)} ${(launchX - 2.2).toFixed(2)} ${(launchY - wave * 0.2).toFixed(2)} ${launchX.toFixed(2)} ${launchY.toFixed(2)}`,
+    `C ${midX.toFixed(2)} ${midY.toFixed(2)} ${(endX - 2.3).toFixed(2)} ${(endY - 1.6 + wave * 0.22).toFixed(2)} ${endX.toFixed(2)} ${endY.toFixed(2)}`,
+  ].join(' ');
+}
+
 export default function ContinuumPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get('projectId');
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const parallaxX = useSpring(pointerX, { stiffness: 55, damping: 18, mass: 0.5 });
+  const parallaxY = useSpring(pointerY, { stiffness: 55, damping: 18, mass: 0.5 });
+  const nebulaX = useTransform(parallaxX, [-1, 0, 1], [-34, 0, 34]);
+  const nebulaY = useTransform(parallaxY, [-1, 0, 1], [-24, 0, 24]);
+  const starX = useTransform(parallaxX, [-1, 0, 1], [-18, 0, 18]);
+  const starY = useTransform(parallaxY, [-1, 0, 1], [-14, 0, 14]);
 
   const [unfurled, setUnfurled] = useState(false);
   const [hoveredRibbon, setHoveredRibbon] = useState<number | null>(null);
   const [focusedRibbon, setFocusedRibbon] = useState<number | null>(null);
   const [hoveredMainBraidEdge, setHoveredMainBraidEdge] = useState(false);
   const [selectedNode, setSelectedNode] = useState<{ ribbon: string; node: string; nodeId: string } | null>(null);
+  const [selectedNodeSnapshot, setSelectedNodeSnapshot] = useState<LoreNode | null>(null);
   const [hoveredNode, setHoveredNode] = useState<{ ribbon: number; nodeId: string } | null>(null);
   const [nodes, setNodes] = useState<LoreNode[]>([]);
   const [nodesLoading, setNodesLoading] = useState(false);
   const [nodesError, setNodesError] = useState<string | null>(null);
   const [showCreateNode, setShowCreateNode] = useState(false);
   const [nodeFormMode, setNodeFormMode] = useState<'create' | 'edit'>('create');
+  const [branchOriginNodeId, setBranchOriginNodeId] = useState<string | null>(null);
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const [creatingNode, setCreatingNode] = useState(false);
   const [deletingNode, setDeletingNode] = useState(false);
@@ -175,16 +270,27 @@ export default function ContinuumPage() {
     };
   }, [projectId]);
 
+  const branchOriginByNodeId = useMemo(() => {
+    const map = new Map<string, string>();
+
+    for (const node of nodes) {
+      if (!node.branchFromNodeId) continue;
+      map.set(node.id, node.branchFromNodeId);
+    }
+
+    return map;
+  }, [nodes]);
+
   const nodesByRibbon = useMemo(() => {
     return RIBBON_CONFIG.map((ribbon) => {
       return nodes
-        .filter((node) => node.type === ribbon.type)
+        .filter((node) => node.type === ribbon.type && !branchOriginByNodeId.has(node.id))
         .sort((a, b) => {
           if (a.position !== b.position) return a.position - b.position;
           return (a.createdAt ?? '').localeCompare(b.createdAt ?? '');
         });
     });
-  }, [nodes]);
+  }, [branchOriginByNodeId, nodes]);
 
   const totalNodes = nodes.length;
   const vitality = Math.min(totalNodes / MAX_VITALITY_NODES, 1);
@@ -194,15 +300,251 @@ export default function ContinuumPage() {
   const atmosphereTertiary = mixHexColors('#4b5563', '#f59e0b', globalColorVibrance);
   const atmosphereOpacity = 0.12 + globalColorVibrance * 0.58;
   const atmosphereSaturation = 0.18 + globalColorVibrance * 1.05;
+  const spaceScene = useMemo(() => buildSpaceScene(projectId ?? 'continuum'), [projectId]);
+  const nodeSuggestions = useMemo(
+    () => nodes.map((node) => ({
+      id: node.id,
+      name: node.name,
+      color: node.color,
+      label: branchOriginByNodeId.has(node.id) ? `Branch: ${node.name}` : undefined,
+    })),
+    [branchOriginByNodeId, nodes],
+  );
+  const nodeRibbonIndex = useMemo(() => {
+    const map = new Map<string, number>();
+    RIBBON_CONFIG.forEach((ribbon, ribbonIndex) => {
+      nodesByRibbon[ribbonIndex]?.forEach((node) => {
+        if (!map.has(node.id)) {
+          map.set(node.id, ribbonIndex);
+        }
+      });
+    });
+    return map;
+  }, [nodesByRibbon]);
 
   const selectedNodeRecord = useMemo(() => {
     if (!selectedNode) return null;
     return nodes.find((node) => node.id === selectedNode.nodeId) ?? null;
   }, [nodes, selectedNode]);
 
+  const activeSelectedNode = selectedNodeRecord ?? selectedNodeSnapshot;
+
+  function resolveSelectedNodeRecord() {
+    return activeSelectedNode;
+  }
+
+  const selectedNodeReferences = useMemo(() => {
+    if (!activeSelectedNode) return [];
+
+    const relatedIds = activeSelectedNode.relatedNodeIds ?? [];
+    if (relatedIds.length === 0) return [];
+
+    return nodes.filter((node) => {
+      if (!relatedIds.includes(node.id)) return false;
+      return branchOriginByNodeId.get(node.id) !== activeSelectedNode.id;
+    });
+  }, [activeSelectedNode, branchOriginByNodeId, nodes]);
+
+  // Build a map of branch node positions for cross-tier linking
+  const branchNodePositions = useMemo(() => {
+    const map = new Map<string, { endX: number; endY: number; ribbonIndex: number }>();
+    const nodesById = new Map(nodes.map((node) => [node.id, node]));
+    const branchLaneCount = new Map<string, number>();
+
+    for (const branchNode of nodes) {
+      const originNodeId = branchOriginByNodeId.get(branchNode.id);
+      if (!originNodeId) continue;
+
+      const originNode = nodesById.get(originNodeId);
+      if (!originNode) continue;
+
+      const ribbonIndex = nodeRibbonIndex.get(originNode.id);
+      if (ribbonIndex === undefined) continue;
+
+      const sourceX = Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, originNode.position)) * 100;
+      const sourceY = ribbonIndex * UNFURLED_RIBBON_GAP + UNFURLED_RIBBON_Y_OFFSET;
+
+      const laneKey = `${originNode.id}`;
+      const lane = branchLaneCount.get(laneKey) ?? 0;
+      branchLaneCount.set(laneKey, lane + 1);
+
+      const endX = Math.max(sourceX + 20 + lane * 5, Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, branchNode.position)) * 100);
+      const endY = Math.max(8, sourceY - 28 - lane * 18);
+
+      map.set(branchNode.id, { endX, endY, ribbonIndex });
+    }
+
+    return map;
+  }, [branchOriginByNodeId, nodeRibbonIndex, nodes]);
+
+  const relationGraph = useMemo(() => {
+    const paths: Array<{
+      id: string;
+      sourceNodeId: string;
+      targetNodeId: string;
+      sourceX: number;
+      sourceY: number;
+      targetX: number;
+      targetY: number;
+      color: string;
+      sourceRibbonIndex: number;
+      targetRibbonIndex: number;
+    }> = [];
+    const connectedNodeIds = new Set<string>();
+
+    const nodesById = new Map(nodes.map((node) => [node.id, node]));
+
+    for (const sourceNode of nodes) {
+      const sourceRibbonIndex = nodeRibbonIndex.get(sourceNode.id);
+      if (sourceRibbonIndex === undefined) continue;
+
+      const relatedIds = sourceNode.relatedNodeIds ?? [];
+      if (relatedIds.length === 0) continue;
+
+      const sourcePct = Math.max(0.05, Math.min(0.95, sourceNode.position)) * 100;
+      const sourceY = sourceRibbonIndex * UNFURLED_RIBBON_GAP + UNFURLED_RIBBON_Y_OFFSET;
+
+      for (const targetId of relatedIds) {
+        if (targetId === sourceNode.id) continue;
+        const targetNode = nodesById.get(targetId);
+        if (!targetNode) continue;
+        if (branchOriginByNodeId.get(targetNode.id) === sourceNode.id) continue;
+
+        // Try main ribbon first
+        let targetRibbonIndex = nodeRibbonIndex.get(targetNode.id);
+        let targetPct: number;
+        let targetY: number;
+
+        if (targetRibbonIndex !== undefined) {
+          // Target is a main ribbon node
+          targetPct = Math.max(0.05, Math.min(0.95, targetNode.position)) * 100;
+          targetY = targetRibbonIndex * UNFURLED_RIBBON_GAP + UNFURLED_RIBBON_Y_OFFSET;
+        } else {
+          // Check if target is a branch node
+          const branchPos = branchNodePositions.get(targetNode.id);
+          if (!branchPos) continue;
+
+          targetPct = branchPos.endX;
+          targetY = branchPos.endY;
+          targetRibbonIndex = branchPos.ribbonIndex;
+        }
+
+        connectedNodeIds.add(sourceNode.id);
+        connectedNodeIds.add(targetNode.id);
+
+        paths.push({
+          id: `${sourceNode.id}-${targetNode.id}`,
+          sourceNodeId: sourceNode.id,
+          targetNodeId: targetNode.id,
+          sourceX: sourcePct,
+          sourceY,
+          targetX: targetPct,
+          targetY,
+          color: RIBBON_CONFIG[sourceRibbonIndex]?.color ?? '#67e8f9',
+          sourceRibbonIndex,
+          targetRibbonIndex,
+        });
+      }
+    }
+
+    return { paths, connectedNodeIds };
+  }, [branchNodePositions, branchOriginByNodeId, nodeRibbonIndex, nodes]);
+
+  const branchGraph = useMemo(() => {
+    const branches: Array<{
+      id: string;
+      originNodeId: string;
+      branchNodeId: string;
+      sourceX: number;
+      sourceY: number;
+      endX: number;
+      endY: number;
+      color: string;
+      ribbonIndex: number;
+      branchNode: LoreNode;
+    }> = [];
+
+    const nodesById = new Map(nodes.map((node) => [node.id, node]));
+    const branchLaneCount = new Map<string, number>();
+
+    for (const branchNode of nodes) {
+      const originNodeId = branchOriginByNodeId.get(branchNode.id);
+      if (!originNodeId) continue;
+
+      const originNode = nodesById.get(originNodeId);
+      if (!originNode) continue;
+
+      const ribbonIndex = nodeRibbonIndex.get(originNode.id);
+      if (ribbonIndex === undefined) continue;
+
+      const sourceX = Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, originNode.position)) * 100;
+      const sourceY = ribbonIndex * UNFURLED_RIBBON_GAP + UNFURLED_RIBBON_Y_OFFSET;
+
+      const laneKey = `${originNode.id}`;
+      const lane = branchLaneCount.get(laneKey) ?? 0;
+      branchLaneCount.set(laneKey, lane + 1);
+
+      const endX = Math.max(sourceX + 20 + lane * 5, Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, branchNode.position)) * 100);
+      const endY = Math.max(8, sourceY - 28 - lane * 18);
+
+      branches.push({
+        id: `${originNode.id}-${branchNode.id}`,
+        originNodeId: originNode.id,
+        branchNodeId: branchNode.id,
+        sourceX,
+        sourceY,
+        endX,
+        endY,
+        color: RIBBON_CONFIG[ribbonIndex]?.color ?? '#67e8f9',
+        ribbonIndex,
+        branchNode,
+      });
+    }
+
+    return { branches };
+  }, [branchOriginByNodeId, nodeRibbonIndex, nodes]);
+
+  function generateRandomRibbonPosition(type: string, excludedNodeId?: string) {
+    const occupiedPositions = nodes
+      .filter((node) => node.type === type && node.id !== excludedNodeId)
+      .map((node) => Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, node.position)));
+
+    if (occupiedPositions.length === 0) {
+      return RIBBON_POSITION_MIN + Math.random() * (RIBBON_POSITION_MAX - RIBBON_POSITION_MIN);
+    }
+
+    const range = RIBBON_POSITION_MAX - RIBBON_POSITION_MIN;
+    const maxPossibleGap = range / (occupiedPositions.length + 1);
+    const minGap = Math.min(0.03, Math.max(0.008, maxPossibleGap * 0.72));
+
+    let bestCandidate = RIBBON_POSITION_MIN;
+    let bestDistance = -1;
+
+    for (let attempt = 0; attempt < 400; attempt += 1) {
+      const candidate = RIBBON_POSITION_MIN + Math.random() * range;
+      let nearestDistance = Infinity;
+
+      for (const occupied of occupiedPositions) {
+        nearestDistance = Math.min(nearestDistance, Math.abs(candidate - occupied));
+      }
+
+      if (nearestDistance >= minGap) {
+        return candidate;
+      }
+
+      if (nearestDistance > bestDistance) {
+        bestDistance = nearestDistance;
+        bestCandidate = candidate;
+      }
+    }
+
+    return bestCandidate;
+  }
+
   function openCreateNodeModal() {
     setNodeFormMode('create');
     setEditingNodeId(null);
+    setBranchOriginNodeId(null);
     setNewNode({
       type: RIBBON_CONFIG[0].type,
       name: '',
@@ -213,16 +555,73 @@ export default function ContinuumPage() {
   }
 
   function openEditNodeModal() {
-    if (!selectedNodeRecord) return;
+    const activeNode = resolveSelectedNodeRecord();
+    if (!activeNode) return;
     setNodeFormMode('edit');
-    setEditingNodeId(selectedNodeRecord.id);
+    setBranchOriginNodeId(null);
+    setEditingNodeId(activeNode.id);
     setNewNode({
-      type: selectedNodeRecord.type,
-      name: selectedNodeRecord.name,
-      content: selectedNodeRecord.content ?? '',
-      position: Math.max(0.05, Math.min(0.95, selectedNodeRecord.position)),
+      type: activeNode.type,
+      name: activeNode.name,
+      content: activeNode.content ?? '',
+      position: Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, activeNode.position)),
     });
     setShowCreateNode(true);
+  }
+
+  function openBranchNodeModal() {
+    const originNode = resolveSelectedNodeRecord();
+    if (!originNode || focusedRibbon === null) return;
+
+    setNodeFormMode('create');
+    setEditingNodeId(null);
+    setBranchOriginNodeId(originNode.id);
+    setNewNode({
+      type: originNode.type,
+      name: '',
+      content: '',
+      position: Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, originNode.position)),
+    });
+    setShowCreateNode(true);
+  }
+
+  function generateBranchRibbonPosition(originNode: LoreNode, excludedNodeId?: string) {
+    const occupiedPositions = nodes
+      .filter((node) => node.type === originNode.type && node.id !== excludedNodeId)
+      .map((node) => Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, node.position)));
+
+    const range = RIBBON_POSITION_MAX - RIBBON_POSITION_MIN;
+    const originPosition = Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, originNode.position));
+    const maxPossibleGap = range / (occupiedPositions.length + 1);
+    const minGap = Math.min(0.03, Math.max(0.008, maxPossibleGap * 0.72));
+
+    let bestCandidate = originPosition;
+    let bestDistance = -1;
+
+    for (let attempt = 0; attempt < 400; attempt += 1) {
+      const direction = 1;
+      const distance = 0.08 + Math.random() * 0.26;
+      const candidate = Math.max(
+        RIBBON_POSITION_MIN,
+        Math.min(RIBBON_POSITION_MAX, originPosition + direction * distance),
+      );
+
+      let nearestDistance = Infinity;
+      for (const occupied of occupiedPositions) {
+        nearestDistance = Math.min(nearestDistance, Math.abs(candidate - occupied));
+      }
+
+      if (nearestDistance >= minGap) {
+        return candidate;
+      }
+
+      if (nearestDistance > bestDistance) {
+        bestDistance = nearestDistance;
+        bestCandidate = candidate;
+      }
+    }
+
+    return bestCandidate;
   }
 
   async function handleCreateNode(event: React.FormEvent<HTMLFormElement>) {
@@ -234,13 +633,29 @@ export default function ContinuumPage() {
 
     try {
       const method = nodeFormMode === 'edit' ? 'PUT' : 'POST';
+      const editingNode = nodeFormMode === 'edit' && editingNodeId
+        ? nodes.find((node) => node.id === editingNodeId)
+        : null;
+      const shouldAutoPlace =
+        nodeFormMode === 'create' ||
+        (nodeFormMode === 'edit' && !!editingNode && editingNode.type !== newNode.type);
+      const branchOriginNode = branchOriginNodeId
+        ? nodes.find((node) => node.id === branchOriginNodeId)
+        : null;
+      const nodePosition = shouldAutoPlace
+        ? branchOriginNode
+          ? generateBranchRibbonPosition(branchOriginNode, editingNodeId ?? undefined)
+          : generateRandomRibbonPosition(newNode.type, editingNodeId ?? undefined)
+        : Math.max(RIBBON_POSITION_MIN, Math.min(RIBBON_POSITION_MAX, newNode.position));
+
       const payload = {
         ...(nodeFormMode === 'edit' ? { id: editingNodeId } : {}),
         projectId,
         type: newNode.type,
         name: newNode.name,
         content: newNode.content || undefined,
-        position: newNode.position,
+        position: nodePosition,
+        connectFromNodeId: nodeFormMode === 'create' ? branchOriginNodeId ?? undefined : undefined,
       };
 
       const res = await fetch('/api/nodes', {
@@ -273,11 +688,13 @@ export default function ContinuumPage() {
           node: saved.name,
           nodeId: saved.id,
         });
+        setSelectedNodeSnapshot(saved);
       }
 
       setShowCreateNode(false);
       setNodeFormMode('create');
       setEditingNodeId(null);
+      setBranchOriginNodeId(null);
       setNewNode({
         type: RIBBON_CONFIG[0].type,
         name: '',
@@ -293,12 +710,14 @@ export default function ContinuumPage() {
   }
 
   async function handleDeleteSelectedNode() {
-    if (!projectId || !selectedNodeRecord || deletingNode) return;
+    if (!projectId || deletingNode) return;
+    if (!resolveSelectedNodeRecord()) return;
     setShowDeleteConfirm(true);
   }
 
   async function confirmDeleteSelectedNode() {
-    if (!projectId || !selectedNodeRecord) return;
+    const activeNode = resolveSelectedNodeRecord();
+    if (!projectId || !activeNode) return;
 
     setDeletingNode(true);
     setNodesError(null);
@@ -307,7 +726,7 @@ export default function ContinuumPage() {
       const res = await fetch('/api/nodes', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: selectedNodeRecord.id, projectId }),
+        body: JSON.stringify({ id: activeNode.id, projectId }),
       });
 
       const responsePayload = await res.json();
@@ -315,8 +734,10 @@ export default function ContinuumPage() {
         throw new Error(typeof responsePayload?.error === 'string' ? responsePayload.error : 'Unable to delete node.');
       }
 
-      setNodes((current) => current.filter((node) => node.id !== selectedNodeRecord.id));
+      setNodes((current) => current.filter((node) => node.id !== activeNode.id));
       setSelectedNode(null);
+      setSelectedNodeSnapshot(null);
+      setSelectedNodeSnapshot(null);
       setShowDeleteConfirm(false);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to delete node.';
@@ -331,14 +752,96 @@ export default function ContinuumPage() {
     router.push(`/arcs?projectId=${encodeURIComponent(projectId)}`);
   }
 
+  function handleBackgroundMove(event: React.PointerEvent<HTMLElement>) {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+    const y = ((event.clientY - bounds.top) / bounds.height) * 2 - 1;
+    pointerX.set(Math.max(-1, Math.min(1, x)));
+    pointerY.set(Math.max(-1, Math.min(1, y)));
+  }
+
+  function resetBackgroundParallax() {
+    pointerX.set(0);
+    pointerY.set(0);
+  }
+
   return (
-    <main className="min-h-screen bg-slate-900 flex flex-col">
+    <main
+      className="relative min-h-screen overflow-hidden bg-slate-950 flex flex-col"
+      onPointerMove={handleBackgroundMove}
+      onPointerLeave={resetBackgroundParallax}
+    >
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute inset-0"
+          animate={{ opacity: [0.92, 1, 0.92], scale: [1, 1.02, 1] }}
+          transition={{ duration: 12, ease: 'easeInOut', repeat: Infinity }}
+          style={{
+            x: nebulaX,
+            y: nebulaY,
+            background: [
+              'radial-gradient(circle at 18% 18%, rgba(14,165,233,0.16) 0%, transparent 28%)',
+              'radial-gradient(circle at 82% 24%, rgba(168,85,247,0.13) 0%, transparent 30%)',
+              'radial-gradient(circle at 50% 78%, rgba(59,130,246,0.1) 0%, transparent 34%)',
+              'linear-gradient(180deg, rgba(2,6,23,0.72) 0%, rgba(2,6,23,0.92) 100%)',
+            ].join(', '),
+          }}
+        />
+
+        <motion.div
+          className="absolute -left-24 top-[-10%] h-[34rem] w-[34rem] rounded-full blur-3xl"
+          animate={{ opacity: [0.28, 0.44, 0.28], scale: [1, 1.06, 1] }}
+          transition={{ duration: 7.5, ease: 'easeInOut', repeat: Infinity }}
+          style={{
+            x: nebulaX,
+            y: nebulaY,
+            background: 'radial-gradient(circle, rgba(14,165,233,0.34) 0%, rgba(14,165,233,0.08) 40%, transparent 72%)',
+          }}
+        />
+
+        <motion.div
+          className="absolute right-[-10%] top-[12%] h-[28rem] w-[28rem] rounded-full blur-3xl"
+          animate={{ opacity: [0.2, 0.36, 0.2], scale: [1, 1.05, 1] }}
+          transition={{ duration: 8.5, ease: 'easeInOut', repeat: Infinity }}
+          style={{
+            x: nebulaX,
+            y: nebulaY,
+            background: 'radial-gradient(circle, rgba(168,85,247,0.3) 0%, rgba(168,85,247,0.08) 42%, transparent 74%)',
+          }}
+        />
+
+        <motion.div className="absolute inset-0 opacity-70" style={{ x: starX, y: starY }}>
+          {spaceScene.stars.map((star) => (
+            <motion.span
+              key={star.id}
+              aria-hidden="true"
+              className="absolute rounded-full bg-white will-change-transform"
+              style={{
+                left: `${star.left}%`,
+                top: `${star.top}%`,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                opacity: star.opacity,
+                boxShadow: `0 0 ${star.size * 3.2}px rgba(255,255,255,0.7)`,
+              }}
+              animate={{
+                x: [0, star.driftX, 0],
+                y: [0, star.driftY, 0],
+                opacity: [star.opacity * 0.65, star.opacity, star.opacity * 0.72],
+                scale: [1, star.twinkle, 1],
+              }}
+              transition={{ duration: star.duration, ease: 'linear', repeat: Infinity, delay: star.delay }}
+            />
+          ))}
+        </motion.div>
+
+      </div>
       {/* Top bar */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="flex items-center justify-between px-8 py-5 border-b border-slate-800"
+        className="relative z-10 flex items-center justify-between border-b border-slate-800/70 bg-slate-950/55 px-8 py-5 backdrop-blur-md"
       >
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">The Continuum</h1>
@@ -372,7 +875,7 @@ export default function ContinuumPage() {
       </motion.div>
 
       {/* Canvas */}
-      <div className={`flex-1 flex items-center justify-center px-8 py-10 ${unfurled ? 'overflow-auto' : 'overflow-hidden'}`}>
+      <div className={`relative z-10 flex-1 flex items-center justify-center px-8 py-10 ${unfurled ? 'overflow-auto' : 'overflow-hidden'}`}>
         <div className="relative w-full max-w-[88rem]">
 
           {/* Atmosphere bloom */}
@@ -425,13 +928,14 @@ export default function ContinuumPage() {
           {/* Ribbons */}
           <div
             className="relative"
-            style={{ height: unfurled ? RIBBON_CONFIG.length * 76 + 40 : 80 }}
+            style={{ height: unfurled ? UNFURLED_VIEWBOX_HEIGHT : 80 }}
             onClick={(event) => {
               if (unfurled && event.target === event.currentTarget) {
                 setUnfurled(false);
                 setHoveredRibbon(null);
                 setFocusedRibbon(null);
                 setSelectedNode(null);
+                setSelectedNodeSnapshot(null);
                 setHoveredMainBraidEdge(false);
               }
             }}
@@ -464,6 +968,358 @@ export default function ContinuumPage() {
               </motion.button>
             )}
 
+            {unfurled && focusedRibbon === null && relationGraph.paths.length > 0 && (
+              <svg
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-10 h-full w-full overflow-visible"
+                viewBox={`0 0 100 ${UNFURLED_VIEWBOX_HEIGHT}`}
+                preserveAspectRatio="none"
+              >
+                {relationGraph.paths.map((path) => (
+                  (() => {
+                    const isConnectedToHoveredNode =
+                      !!hoveredNode &&
+                      (hoveredNode.nodeId === path.sourceNodeId || hoveredNode.nodeId === path.targetNodeId);
+                    const lineSeed = hashStringToUnit(path.id);
+                    const flowDuration = 3.8 + lineSeed * 2.3;
+                    const pulseDuration = 2.2 + lineSeed * 1.7;
+                    const revealDelay = 0.14 + path.sourceRibbonIndex * 0.06 + (path.sourceX / 100) * 0.22;
+                    const midX = (path.sourceX + path.targetX) / 2;
+                    const midY = (path.sourceY + path.targetY) / 2;
+                    const bend = 10 + Math.abs(path.targetRibbonIndex - path.sourceRibbonIndex) * 6;
+                    const linkPath = `M ${path.sourceX.toFixed(2)} ${path.sourceY.toFixed(2)} C ${midX.toFixed(2)} ${(midY - bend).toFixed(2)} ${midX.toFixed(2)} ${(midY + bend).toFixed(2)} ${path.targetX.toFixed(2)} ${path.targetY.toFixed(2)}`;
+
+                    return (
+                      <g key={path.id}>
+                        <motion.path
+                          d={linkPath}
+                          fill="none"
+                          stroke={path.color}
+                          strokeLinecap="round"
+                          initial={{ pathLength: 0, opacity: 0 }}
+                          animate={{
+                            pathLength: 1,
+                            opacity: isConnectedToHoveredNode ? [0.52, 0.84, 0.52] : [0.14, 0.24, 0.14],
+                            strokeWidth: isConnectedToHoveredNode ? 1.55 : 0.95,
+                          }}
+                          transition={{
+                            pathLength: { duration: 0.38, ease: 'easeOut', delay: revealDelay },
+                            opacity: { duration: pulseDuration, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror' },
+                            strokeWidth: { duration: 0.28, ease: 'easeOut' },
+                          }}
+                          style={{
+                            filter: isConnectedToHoveredNode
+                              ? `drop-shadow(0 0 8px ${path.color})`
+                              : `drop-shadow(0 0 2px ${path.color})`,
+                          }}
+                        />
+                        <motion.path
+                          d={linkPath}
+                          fill="none"
+                          stroke={path.color}
+                          strokeLinecap="round"
+                          initial={{ pathLength: 0, opacity: 0 }}
+                          animate={{
+                            pathLength: 1,
+                            opacity: isConnectedToHoveredNode ? 0.96 : 0.58,
+                            strokeWidth: isConnectedToHoveredNode ? 0.95 : 0.45,
+                            strokeDashoffset: isConnectedToHoveredNode ? [-2, -26] : [0, -18],
+                          }}
+                          transition={{
+                            pathLength: { duration: 0.35, ease: 'easeOut', delay: revealDelay + 0.03 },
+                            opacity: { duration: 0.35, ease: 'easeOut' },
+                            strokeWidth: { duration: 0.28, ease: 'easeOut' },
+                            strokeDashoffset: { duration: flowDuration, ease: 'linear', repeat: Infinity },
+                          }}
+                          style={{
+                            strokeDasharray: isConnectedToHoveredNode ? '0.8 3.4' : '1.25 5.5',
+                            filter: isConnectedToHoveredNode
+                              ? `drop-shadow(0 0 6px ${path.color}) drop-shadow(0 0 10px ${path.color})`
+                              : `drop-shadow(0 0 1.5px ${path.color})`,
+                          }}
+                        />
+                        <motion.path
+                          d={linkPath}
+                          fill="none"
+                          stroke="rgba(255,255,255,0.7)"
+                          strokeLinecap="round"
+                          initial={{ pathLength: 0, opacity: 0 }}
+                          animate={{
+                            pathLength: 1,
+                            opacity: isConnectedToHoveredNode ? 0.52 : 0.2,
+                            strokeWidth: isConnectedToHoveredNode ? 0.34 : 0.22,
+                            strokeDashoffset: [0, -34],
+                          }}
+                          transition={{
+                            pathLength: { duration: 0.35, ease: 'easeOut', delay: revealDelay + 0.06 },
+                            opacity: { duration: 0.3, ease: 'easeOut' },
+                            strokeWidth: { duration: 0.25, ease: 'easeOut' },
+                            strokeDashoffset: { duration: flowDuration * 0.75, ease: 'linear', repeat: Infinity },
+                          }}
+                          style={{
+                            strokeDasharray: isConnectedToHoveredNode ? '0.4 9.5' : '0.4 12',
+                            mixBlendMode: 'screen',
+                          }}
+                        />
+                      </g>
+                    );
+                  })()
+                ))}
+              </svg>
+            )}
+
+            {unfurled && focusedRibbon === null && branchGraph.branches.length > 0 && (
+              <svg
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-[9] h-full w-full overflow-visible"
+                viewBox={`0 0 100 ${UNFURLED_VIEWBOX_HEIGHT}`}
+                preserveAspectRatio="none"
+              >
+                {branchGraph.branches.map((branch) => {
+                  const flashSeed = hashStringToUnit(`flash-${branch.id}`);
+                  const flashDelay = 0.5 + branch.ribbonIndex * 0.08 + (branch.sourceX / 100) * 0.24 + flashSeed * 0.12;
+                  return (
+                    <g key={`flash-${branch.id}`}>
+                      <motion.circle
+                        cx={branch.sourceX}
+                        cy={branch.sourceY}
+                        r={1.25}
+                        fill={branch.color}
+                        initial={{ opacity: 0, scale: 0.75 }}
+                        animate={{
+                          opacity: [0, 0, 0.95, 0],
+                          scale: [0.72, 0.72, 1.45, 0.9],
+                        }}
+                        transition={{
+                          duration: 0.95,
+                          ease: 'easeOut',
+                          delay: Math.max(0.08, flashDelay - 0.08),
+                          repeat: Infinity,
+                          repeatDelay: 6.8 + flashSeed * 2.6,
+                        }}
+                        style={{ filter: `drop-shadow(0 0 8px ${branch.color})` }}
+                      />
+                      <motion.circle
+                        cx={branch.sourceX}
+                        cy={branch.sourceY}
+                        r={1.1}
+                        fill="none"
+                        stroke={branch.color}
+                        strokeWidth={0.22}
+                        initial={{ opacity: 0, scale: 0.85 }}
+                        animate={{
+                          opacity: [0, 0, 0.72, 0],
+                          scale: [0.8, 0.8, 3.2, 4.5],
+                        }}
+                        transition={{
+                          duration: 1.05,
+                          ease: 'easeOut',
+                          delay: Math.max(0.08, flashDelay - 0.06),
+                          repeat: Infinity,
+                          repeatDelay: 6.8 + flashSeed * 2.6,
+                        }}
+                        style={{ transformOrigin: `${branch.sourceX}px ${branch.sourceY}px` }}
+                      />
+                    </g>
+                  );
+                })}
+
+                {branchGraph.branches.map((branch) => {
+                  const isConnectedToHoveredNode =
+                    !!hoveredNode &&
+                    (hoveredNode.nodeId === branch.originNodeId || hoveredNode.nodeId === branch.branchNodeId);
+                  const branchSeed = hashStringToUnit(branch.id);
+                  const branchPulseDuration = 2.6 + branchSeed * 1.8;
+                  const revealDelay = 0.5 + branch.ribbonIndex * 0.08 + (branch.sourceX / 100) * 0.24 + branchSeed * 0.12;
+                  const waveA = 0;
+                  const waveB = 0.9 + branchSeed * 1.4;
+                  const waveC = -0.7 - branchSeed * 1.1;
+                  const branchFrames = [
+                    buildBranchRibbonPath(branch.sourceX, branch.sourceY, branch.endX, branch.endY, waveA),
+                    buildBranchRibbonPath(branch.sourceX, branch.sourceY, branch.endX, branch.endY, waveB),
+                    buildBranchRibbonPath(branch.sourceX, branch.sourceY, branch.endX, branch.endY, waveC),
+                    buildBranchRibbonPath(branch.sourceX, branch.sourceY, branch.endX, branch.endY, waveA),
+                  ];
+
+                  return (
+                    <g key={branch.id}>
+                      <motion.path
+                        d={`M ${(branch.sourceX - 1.2).toFixed(2)} ${branch.sourceY.toFixed(2)} L ${(branch.sourceX + 2.6).toFixed(2)} ${branch.sourceY.toFixed(2)}`}
+                        fill="none"
+                        stroke={branch.color}
+                        strokeWidth={isConnectedToHoveredNode ? 3.8 : 3.2}
+                        strokeLinecap="round"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: isConnectedToHoveredNode ? 0.98 : 0.86 }}
+                        transition={{ duration: 0.32, ease: 'easeOut', delay: revealDelay + 0.02 }}
+                        style={{
+                          filter: `drop-shadow(0 0 ${isConnectedToHoveredNode ? 8 : 5}px ${branch.color})`,
+                        }}
+                      />
+                      <motion.circle
+                        cx={branch.sourceX}
+                        cy={branch.sourceY}
+                        r={isConnectedToHoveredNode ? 1.12 : 0.96}
+                        fill={branch.color}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{
+                          opacity: isConnectedToHoveredNode ? [0.9, 1, 0.9] : [0.74, 0.88, 0.74],
+                          scale: [1, 1.08, 1],
+                        }}
+                        transition={{
+                          opacity: { duration: 1.6, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror', delay: revealDelay + 0.04 },
+                          scale: { duration: 1.6, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror', delay: revealDelay + 0.04 },
+                        }}
+                        style={{ filter: `drop-shadow(0 0 6px ${branch.color})` }}
+                      />
+                      <motion.path
+                        d={branchFrames[0]}
+                        fill="none"
+                        stroke={branch.color}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{
+                          pathLength: 1,
+                          d: branchFrames,
+                          opacity: isConnectedToHoveredNode ? [0.1, 0.18, 0.1] : [0.06, 0.12, 0.06],
+                          strokeWidth: isConnectedToHoveredNode ? [9.4, 10.2, 9.4] : [8.2, 9, 8.2],
+                        }}
+                        transition={{
+                          pathLength: { duration: 0.5, ease: 'easeOut', delay: revealDelay },
+                          d: {
+                            duration: 2.35,
+                            ease: 'linear',
+                            repeat: Infinity,
+                            repeatType: 'loop',
+                            delay: revealDelay + 0.05,
+                          },
+                          opacity: { duration: branchPulseDuration, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror' },
+                          strokeWidth: { duration: branchPulseDuration, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror' },
+                        }}
+                        style={{
+                          filter: isConnectedToHoveredNode
+                            ? `blur(3.1px) drop-shadow(0 0 14px ${branch.color})`
+                            : `blur(2.6px) drop-shadow(0 0 9px ${branch.color})`,
+                        }}
+                      />
+                      <motion.path
+                        d={branchFrames[0]}
+                        fill="none"
+                        stroke={branch.color}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{
+                          pathLength: 1,
+                          d: branchFrames,
+                          opacity: isConnectedToHoveredNode ? [0.84, 0.98, 0.84] : [0.7, 0.86, 0.7],
+                          strokeWidth: isConnectedToHoveredNode ? [3.4, 3.8, 3.4] : [3, 3.3, 3],
+                        }}
+                        transition={{
+                          pathLength: { duration: 0.46, ease: 'easeOut', delay: revealDelay + 0.05 },
+                          d: {
+                            duration: 2.35,
+                            ease: 'linear',
+                            repeat: Infinity,
+                            repeatType: 'loop',
+                            delay: revealDelay + 0.05,
+                          },
+                          opacity: { duration: branchPulseDuration, ease: 'linear', repeat: Infinity, repeatType: 'loop', delay: revealDelay + 0.05 },
+                          strokeWidth: { duration: branchPulseDuration, ease: 'linear', repeat: Infinity, repeatType: 'loop', delay: revealDelay + 0.05 },
+                        }}
+                        style={{
+                          filter: isConnectedToHoveredNode
+                            ? `drop-shadow(0 0 4.6px ${branch.color}) drop-shadow(0 0 10px ${branch.color})`
+                            : `drop-shadow(0 0 2.6px ${branch.color}) drop-shadow(0 0 6px ${branch.color})`,
+                        }}
+                      />
+                      <motion.path
+                        d={branchFrames[0]}
+                        fill="none"
+                        stroke="rgba(255,255,255,0.5)"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{
+                          pathLength: 1,
+                          d: branchFrames,
+                          opacity: isConnectedToHoveredNode ? 0.2 : 0.13,
+                          strokeWidth: isConnectedToHoveredNode ? 1.25 : 1.05,
+                        }}
+                        transition={{
+                          pathLength: { duration: 0.46, ease: 'easeOut', delay: revealDelay + 0.09 },
+                          d: {
+                            duration: 2.35,
+                            ease: 'linear',
+                            repeat: Infinity,
+                            repeatType: 'loop',
+                            delay: revealDelay + 0.05,
+                          },
+                          opacity: { duration: 1.7, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror', delay: revealDelay + 0.1 },
+                          strokeWidth: { duration: 1.7, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror', delay: revealDelay + 0.1 },
+                        }}
+                        style={{ mixBlendMode: 'screen' }}
+                      />
+                    </g>
+                  );
+                })}
+              </svg>
+            )}
+
+            {unfurled && focusedRibbon === null && branchGraph.branches.map((branch) => {
+              const isSelected = selectedNode?.nodeId === branch.branchNodeId;
+              const isHovered = hoveredNode?.nodeId === branch.branchNodeId;
+              const branchNodeSeed = hashStringToUnit(`branch-node-${branch.branchNodeId}`);
+              const branchNodeRevealDelay = 0.72 + branch.ribbonIndex * 0.08 + (branch.sourceX / 100) * 0.18 + branchNodeSeed * 0.1;
+              return (
+                <div
+                  key={`branch-node-${branch.branchNodeId}`}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 z-[15]"
+                  style={{ left: `${branch.endX}%`, top: `${branch.endY}px` }}
+                >
+                  <motion.button
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.6, y: 7 }}
+                    animate={{
+                      opacity: [0.9, 1, 0.9],
+                      scale: isSelected ? [1.08, 1.17, 1.08] : [1, 1.04, 1],
+                      y: [0, -0.8, 0],
+                    }}
+                    whileHover={{ scale: 1.5 }}
+                    whileTap={{ scale: 0.9 }}
+                    transition={{
+                      opacity: { duration: 2.4, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror', delay: branchNodeRevealDelay },
+                      scale: { duration: isSelected ? 1.2 : 1.9, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror', delay: branchNodeRevealDelay },
+                      y: { duration: 2.1, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror', delay: branchNodeRevealDelay },
+                    }}
+                    onMouseEnter={() => setHoveredNode({ ribbon: branch.ribbonIndex, nodeId: branch.branchNodeId })}
+                    onMouseLeave={() => setHoveredNode((current) => (current?.nodeId === branch.branchNodeId ? null : current))}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedNode(isSelected ? null : {
+                        ribbon: branch.branchNode.type,
+                        node: branch.branchNode.name,
+                        nodeId: branch.branchNode.id,
+                      });
+                      setSelectedNodeSnapshot(isSelected ? null : branch.branchNode);
+                    }}
+                    className="w-3 h-3 rounded-full border-2 cursor-pointer transition-shadow"
+                    style={{
+                      backgroundColor: isSelected ? branch.color : '#1e293b',
+                      borderColor: branch.color,
+                      boxShadow: isSelected
+                        ? `0 0 12px ${branch.color}`
+                        : isHovered
+                          ? `0 0 10px ${branch.color}`
+                          : `0 0 7px ${branch.color}`,
+                    }}
+                    title={`Branch Node - ${branch.branchNode.name}`}
+                  />
+                </div>
+              );
+            })}
+
             {RIBBON_CONFIG.map((ribbon, i) => (
               <motion.div
                 key={ribbon.type}
@@ -473,7 +1329,7 @@ export default function ContinuumPage() {
                     : focusedRibbon === null
                       ? {
                           x: 0,
-                          y: i * 76,
+                          y: i * UNFURLED_RIBBON_GAP,
                           scale: 1,
                           opacity: 1,
                           transition: { duration: 0.52, ease: 'easeOut', delay: i * 0.05 },
@@ -488,7 +1344,7 @@ export default function ContinuumPage() {
                           }
                         : {
                             x: 0,
-                            y: i * 76,
+                            y: i * UNFURLED_RIBBON_GAP,
                             scale: 0.95,
                             opacity: 0.1,
                             transition: { duration: 0.4, ease: 'easeOut' },
@@ -499,6 +1355,7 @@ export default function ContinuumPage() {
                   if (!unfurled) {
                     setUnfurled(true);
                     setSelectedNode(null);
+                    setSelectedNodeSnapshot(null);
                   }
                 }}
                 onMouseEnter={() => {
@@ -511,8 +1368,16 @@ export default function ContinuumPage() {
                     setHoveredRibbon((current) => (current === i ? null : current));
                   }
                 }}
-                className={`absolute left-0 right-0 flex items-center ${unfurled ? '' : 'cursor-pointer'}`}
-                style={{ originX: 0 }}
+                className={`absolute left-0 right-0 flex items-center ${unfurled ? '' : 'cursor-pointer'} ${focusedRibbon !== null && focusedRibbon !== i ? 'pointer-events-none' : ''}`}
+                style={{
+                  originX: 0,
+                  zIndex:
+                    focusedRibbon === i
+                      ? 40
+                      : focusedRibbon === null
+                        ? 10
+                        : 3,
+                }}
               >
                 {(() => {
                   const ribbonNodes = nodesByRibbon[i] ?? [];
@@ -706,26 +1571,35 @@ export default function ContinuumPage() {
                     const pct = Math.max(0.05, Math.min(0.95, node.position));
                     const isSelected = selectedNode?.ribbon === ribbon.type && selectedNode?.nodeId === node.id;
                     const isHovered = hoveredNode?.ribbon === i && hoveredNode?.nodeId === node.id;
+                    const showInOverview = focusedRibbon === null && relationGraph.connectedNodeIds.has(node.id);
+                    const nodeSizeClass = focusedRibbon === i ? 'w-4 h-4' : 'w-3 h-3';
                     return (
                       <div key={node.id} className="absolute -translate-y-1/2 top-1/2" style={{ left: `${pct * 100}%` }}>
                         <motion.button
                           custom={j}
                           variants={nodeVariants}
                           initial="hidden"
-                          animate={unfurled && focusedRibbon === i ? 'visible' : 'hidden'}
+                          animate={unfurled && (focusedRibbon === i || showInOverview) ? 'visible' : 'hidden'}
                           whileHover={{ scale: 1.5 }}
                           whileTap={{ scale: 0.9 }}
                           onClick={(event) => {
                             event.stopPropagation();
                             setSelectedNode(isSelected ? null : { ribbon: ribbon.type, node: node.name, nodeId: node.id });
+                            setSelectedNodeSnapshot(isSelected ? null : node);
                           }}
                           onMouseEnter={() => setHoveredNode({ ribbon: i, nodeId: node.id })}
                           onMouseLeave={() => setHoveredNode((current) => (current?.ribbon === i && current?.nodeId === node.id ? null : current))}
-                          className="w-3 h-3 rounded-full border-2 cursor-pointer transition-shadow"
+                          className={`${nodeSizeClass} rounded-full border-2 cursor-pointer transition-shadow`}
                           style={{
                             backgroundColor: isSelected ? ribbonDisplayColor : '#1e293b',
                             borderColor: ribbonDisplayColor,
-                            boxShadow: isSelected ? `0 0 10px ${ribbonDisplayColor}` : undefined,
+                            boxShadow: isSelected
+                              ? `0 0 10px ${ribbonDisplayColor}`
+                              : selectedNodeReferences.some((reference) => reference.id === node.id)
+                                ? `0 0 12px ${ribbonDisplayColor}`
+                                : showInOverview
+                                  ? `0 0 11px ${ribbonDisplayColor}`
+                                : undefined,
                           }}
                           title={`${ribbon.label} - ${node.name}`}
                         />
@@ -745,6 +1619,7 @@ export default function ContinuumPage() {
                             onClick={(event) => {
                               event.stopPropagation();
                               setSelectedNode(isSelected ? null : { ribbon: ribbon.type, node: node.name, nodeId: node.id });
+                              setSelectedNodeSnapshot(isSelected ? null : node);
                             }}
                             className="absolute left-1/2 top-0 -translate-x-1/2 px-2 py-1 text-xs font-semibold tracking-[0.12em] uppercase whitespace-nowrap pointer-events-none"
                             style={{
@@ -789,6 +1664,8 @@ export default function ContinuumPage() {
                         event.stopPropagation();
                         setFocusedRibbon(null);
                         setSelectedNode(null);
+                          setSelectedNodeSnapshot(null);
+                        setSelectedNodeSnapshot(null);
                       }}
                       className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-slate-600 bg-slate-900/70 px-3 py-1 text-[11px] text-gray-200"
                     >
@@ -821,14 +1698,14 @@ export default function ContinuumPage() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.22 }}
               onClick={() => setShowCreateNode(false)}
-              className="fixed inset-0 z-40 bg-black/55 backdrop-blur-[2px]"
+              className="fixed inset-0 z-[90] bg-black/55 backdrop-blur-[2px]"
             />
             <motion.div
               initial={{ opacity: 0, y: 16, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 14, scale: 0.98 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-6"
+              className="fixed inset-0 z-[95] flex items-center justify-center p-6"
             >
               <form
                 onSubmit={handleCreateNode}
@@ -844,6 +1721,7 @@ export default function ContinuumPage() {
                       setShowCreateNode(false);
                       setNodeFormMode('create');
                       setEditingNodeId(null);
+                      setBranchOriginNodeId(null);
                     }}
                     className="rounded-md border border-slate-600 px-2 py-1 text-xs text-slate-300"
                   >
@@ -862,27 +1740,27 @@ export default function ContinuumPage() {
                     Ribbon Type
                     <select
                       value={newNode.type}
+                      disabled={!!branchOriginNodeId}
                       onChange={(event) => setNewNode((current) => ({ ...current, type: event.target.value }))}
-                      className="mt-1.5 w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white"
+                      className="mt-1.5 w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {RIBBON_CONFIG.map((ribbon) => (
                         <option key={ribbon.type} value={ribbon.type}>{ribbon.label}</option>
                       ))}
                     </select>
+                    {branchOriginNodeId && (
+                      <p className="mt-1 normal-case tracking-normal text-cyan-300">
+                        Branch mode: ribbon follows the selected origin node.
+                      </p>
+                    )}
                   </label>
 
-                  <label className="text-xs uppercase tracking-[0.12em] text-slate-400">
-                    Position ({Math.round(newNode.position * 100)}%)
-                    <input
-                      type="range"
-                      min={0.05}
-                      max={0.95}
-                      step={0.01}
-                      value={newNode.position}
-                      onChange={(event) => setNewNode((current) => ({ ...current, position: Number(event.target.value) }))}
-                      className="mt-3 w-full"
-                    />
-                  </label>
+                  <div className="rounded-lg border border-slate-700 bg-slate-900/50 px-3 py-2 text-xs uppercase tracking-[0.12em] text-slate-400">
+                    Position
+                    <p className="mt-1 normal-case tracking-normal text-slate-300">
+                      Auto-randomized on this ribbon with collision avoidance.
+                    </p>
+                  </div>
                 </div>
 
                 <label className="mt-4 block text-xs uppercase tracking-[0.12em] text-slate-400">
@@ -897,14 +1775,15 @@ export default function ContinuumPage() {
                   />
                 </label>
 
-                <label className="mt-4 block text-xs uppercase tracking-[0.12em] text-slate-400">
-                  Detail (optional)
+                <div className="mt-4 block text-xs uppercase tracking-[0.12em] text-slate-400">
+                  <p>Detail (optional)</p>
                   <RichTextEditor
                     value={newNode.content}
                     onChange={(html) => setNewNode((current) => ({ ...current, content: html }))}
                     placeholder="Describe this node with richer formatting..."
+                    nodeSuggestions={nodeSuggestions}
                   />
-                </label>
+                </div>
 
                 <div className="mt-5 flex items-center justify-end gap-3">
                   <button
@@ -913,6 +1792,7 @@ export default function ContinuumPage() {
                       setShowCreateNode(false);
                       setNodeFormMode('create');
                       setEditingNodeId(null);
+                      setBranchOriginNodeId(null);
                     }}
                     className="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-300"
                   >
@@ -994,7 +1874,7 @@ export default function ContinuumPage() {
         initial={{ y: 120, opacity: 0 }}
         animate={{ y: selectedNode ? 0 : 120, opacity: selectedNode ? 1 : 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 px-8 py-5 flex items-center justify-between"
+        className={`fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-700 bg-slate-800 px-8 py-5 flex items-center justify-between ${selectedNode && !showCreateNode && !showDeleteConfirm ? 'pointer-events-auto' : 'pointer-events-none'}`}
       >
         {selectedNode && (
           <>
@@ -1002,39 +1882,47 @@ export default function ContinuumPage() {
               <p className="text-xs text-gray-500 uppercase tracking-widest mb-0.5">
                 {selectedNode.ribbon} — Nexus Point
               </p>
-              <p className="text-white font-semibold">{selectedNode.node}</p>
+              <p className="text-white font-semibold">{activeSelectedNode?.name ?? selectedNode.node}</p>
             </div>
             <div className="flex gap-3">
               <motion.button
+                type="button"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={openEditNodeModal}
-                disabled={!selectedNodeRecord}
+                disabled={!activeSelectedNode}
                 className="px-4 py-2 rounded-lg border border-cyan-600/60 text-sm text-cyan-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Edit Node
               </motion.button>
               <motion.button
+                type="button"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={openBranchNodeModal}
+                disabled={!activeSelectedNode || focusedRibbon === null}
+                className="px-4 py-2 rounded-lg border border-fuchsia-500/60 text-sm text-fuchsia-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Branch Node
+              </motion.button>
+              <motion.button
+                type="button"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={handleDeleteSelectedNode}
-                disabled={!selectedNodeRecord || deletingNode}
+                disabled={!activeSelectedNode || deletingNode}
                 className="px-4 py-2 rounded-lg border border-rose-500/60 text-sm text-rose-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {deletingNode ? 'Deleting...' : 'Delete Node'}
               </motion.button>
-              <motion.a
-                href="/lore"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="px-4 py-2 rounded-lg bg-slate-700 text-sm text-white hover:bg-slate-600 transition-colors"
-              >
-                Open in Lore Library →
-              </motion.a>
               <motion.button
+                type="button"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
-                onClick={() => setSelectedNode(null)}
+                onClick={() => {
+                  setSelectedNode(null);
+                  setSelectedNodeSnapshot(null);
+                }}
                 className="px-3 py-2 rounded-lg border border-slate-600 text-gray-400 text-sm hover:text-white transition-colors"
               >
                 ✕
