@@ -15,11 +15,6 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Unauthenticated users at root go straight to login
-  if (pathname === '/' && !req.auth) {
-    return NextResponse.redirect(new URL('/login', req.url));
-  }
-
   // Redirect authenticated users away from login/home
   if ((pathname === '/' || pathname === '/login') && req.auth) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
