@@ -1211,8 +1211,8 @@ function ContinuumPageInner() {
                             repeatType: 'loop',
                             delay: revealDelay + 0.05,
                           },
-                          opacity: { duration: branchPulseDuration, ease: 'linear', repeat: Infinity, repeatType: 'loop', delay: revealDelay + 0.05 },
-                          strokeWidth: { duration: branchPulseDuration, ease: 'linear', repeat: Infinity, repeatType: 'loop', delay: revealDelay + 0.05 },
+                          opacity: { duration: 1.7, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror', delay: revealDelay + 0.1 },
+                          strokeWidth: { duration: 1.7, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror', delay: revealDelay + 0.1 },
                         }}
                         style={{
                           filter: isConnectedToHoveredNode
@@ -1867,6 +1867,56 @@ function ContinuumPageInner() {
               </form>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Node Preview — right-side panel, slides in without blocking the bottom bar */}
+      <AnimatePresence>
+        {selectedNode && activeSelectedNode && !showCreateNode && !showDeleteConfirm && (
+          <motion.div
+            key="node-preview-panel"
+            initial={{ x: 360, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 360, opacity: 0 }}
+            transition={{ duration: 0.32, ease: 'easeOut' }}
+            className="fixed right-0 z-[60] flex w-80 flex-col border-l border-slate-700/80 bg-slate-900/97 shadow-2xl backdrop-blur-md"
+            style={{ top: 81, bottom: 81 }}
+          >
+            {/* Panel header */}
+            <div className="flex items-start justify-between gap-3 border-b border-slate-700/60 px-5 pb-4 pt-5">
+              <div className="min-w-0">
+                <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  {selectedNode.ribbon} — Nexus Point
+                </p>
+                <h3 className="truncate text-base font-semibold leading-snug text-white">
+                  {activeSelectedNode.name}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedNode(null);
+                  setSelectedNodeSnapshot(null);
+                }}
+                className="mt-0.5 shrink-0 rounded-md border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-400 transition-colors hover:text-white"
+                aria-label="Close preview"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Panel body — scrollable description */}
+            <div className="flex-1 overflow-y-auto px-5 py-4">
+              {activeSelectedNode.content ? (
+                <div
+                  className="prose prose-invert prose-sm max-w-none leading-relaxed text-slate-200"
+                  dangerouslySetInnerHTML={{ __html: activeSelectedNode.content }}
+                />
+              ) : (
+                <p className="text-sm italic text-slate-500">No description written for this node yet.</p>
+              )}
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
