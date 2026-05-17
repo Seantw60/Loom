@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import RichTextEditor from '@/components/Shared/RichTextEditor';
+import { WritingMascot } from '@/components/WritingMascot';
 import { getArcColor } from '@/lib/story-arcs';
 
 interface StoryArcSummary {
@@ -21,6 +22,10 @@ interface ChapterRecord {
   createdAt: string;
   updatedAt: string;
   arc?: string | null;
+}
+
+interface ProjectRecord {
+  name: string;
 }
 
 const ARC_GRAY = '#6b7280';
@@ -69,6 +74,31 @@ function WritingPageInner() {
   const [nodeDraft, setNodeDraft] = useState({ type: 'Character', name: '', content: '', position: 0.5 });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [projectName, setProjectName] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProjectName() {
+      if (!projectId) {
+        setProjectName(null);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/projects?projectId=${encodeURIComponent(projectId)}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Unable to load project.');
+        const data = await res.json() as ProjectRecord;
+        if (cancelled) return;
+        setProjectName(data.name ?? null);
+      } catch {
+        if (!cancelled) setProjectName(null);
+      }
+    }
+
+    void loadProjectName();
+    return () => { cancelled = true; };
+  }, [projectId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -259,7 +289,8 @@ function WritingPageInner() {
   }
 
   return (
-    <main className="min-h-screen xl:h-screen xl:overflow-hidden bg-slate-900 px-4 py-6 md:px-6 xl:px-8 flex flex-col">
+    <main data-mascot-zone className="relative min-h-screen xl:h-screen xl:overflow-hidden bg-slate-900 px-4 py-6 md:px-6 xl:px-8 flex flex-col">
+      <WritingMascot projectName={projectName} zoneSelector="[data-mascot-zone]" targetSelector="[data-mascot-target]" />
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="mx-auto flex w-full max-w-[120rem] flex-col flex-1 min-h-0">
         <div className="shrink-0 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-5">
           <div>
@@ -271,6 +302,7 @@ function WritingPageInner() {
           </div>
           <div className="flex items-center gap-3">
             <motion.button
+              data-mascot-target="minimal-view"
               type="button"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -280,6 +312,7 @@ function WritingPageInner() {
               {minimalView ? 'Exit Minimal View' : 'Minimal View'}
             </motion.button>
             <motion.button
+              data-mascot-target="toggle-arcs"
               type="button"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -290,6 +323,7 @@ function WritingPageInner() {
               {showArcPanel ? 'Hide Arcs' : 'Show Arcs'}
             </motion.button>
             <motion.button
+              data-mascot-target="toggle-node-drop"
               type="button"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -299,7 +333,7 @@ function WritingPageInner() {
             >
               {showNodePanel ? 'Hide Node Drop' : 'Show Node Drop'}
             </motion.button>
-            <Link href={projectId ? `/arcs?projectId=${encodeURIComponent(projectId)}` : '/arcs'} className="rounded-lg border border-cyan-500/60 px-4 py-2 text-sm text-cyan-100">View Arc Braid</Link>
+            <Link data-mascot-target="view-arc-braid" href={projectId ? `/arcs?projectId=${encodeURIComponent(projectId)}` : '/arcs'} className="rounded-lg border border-cyan-500/60 px-4 py-2 text-sm text-cyan-100">View Arc Braid</Link>
             <Link href={projectId ? `/continuum?projectId=${encodeURIComponent(projectId)}` : '/continuum'} className="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-300">Back to Continuum</Link>
           </div>
         </div>
@@ -318,7 +352,7 @@ function WritingPageInner() {
             <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Story Arcs</p>
             <form onSubmit={handleCreateArc} className="mt-4 flex gap-2">
               <input type="text" value={newArcName} onChange={(event) => setNewArcName(event.target.value)} placeholder="Arc 2" className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white" />
-              <motion.button type="submit" whileHover={{ scale: creatingArc ? 1 : 1.03 }} whileTap={{ scale: creatingArc ? 1 : 0.97 }} disabled={!newArcName.trim() || creatingArc || !projectId} className="rounded-lg border border-cyan-500/60 bg-cyan-600/20 px-3 py-2 text-sm text-cyan-100 disabled:opacity-50">{creatingArc ? '...' : '+'}</motion.button>
+              <motion.button data-mascot-target="create-arc" type="submit" whileHover={{ scale: creatingArc ? 1 : 1.03 }} whileTap={{ scale: creatingArc ? 1 : 0.97 }} disabled={!newArcName.trim() || creatingArc || !projectId} className="rounded-lg border border-cyan-500/60 bg-cyan-600/20 px-3 py-2 text-sm text-cyan-100 disabled:opacity-50">{creatingArc ? '...' : '+'}</motion.button>
             </form>
             <div className="mt-4 space-y-2">
               {arcs.length === 0 ? (
@@ -349,7 +383,7 @@ function WritingPageInner() {
                 <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Current Arc</p>
                 <h2 className="mt-1 text-2xl font-semibold" style={{ color: selectedArcColor }}>{selectedArc || 'Select or create an arc'}</h2>
               </div>
-              <motion.button type="button" whileHover={{ scale: creatingChapter ? 1 : 1.03 }} whileTap={{ scale: creatingChapter ? 1 : 0.97 }} onClick={handleCreateChapter} disabled={!projectId || creatingChapter} className="rounded-lg border border-cyan-500/60 bg-cyan-600/20 px-4 py-2 text-sm text-cyan-100 disabled:opacity-50">{creatingChapter ? 'Creating...' : '+ Chapter'}</motion.button>
+              <motion.button data-mascot-target="create-chapter" type="button" whileHover={{ scale: creatingChapter ? 1 : 1.03 }} whileTap={{ scale: creatingChapter ? 1 : 0.97 }} onClick={handleCreateChapter} disabled={!projectId || creatingChapter} className="rounded-lg border border-cyan-500/60 bg-cyan-600/20 px-4 py-2 text-sm text-cyan-100 disabled:opacity-50">{creatingChapter ? 'Creating...' : '+ Chapter'}</motion.button>
             </div>
 
             {!minimalView && (
@@ -396,7 +430,7 @@ function WritingPageInner() {
                     </svg>
                     Chapter Preview
                   </Link>
-                  <motion.button type="button" whileHover={{ scale: saving ? 1 : 1.03 }} whileTap={{ scale: saving ? 1 : 0.97 }} onClick={handleSaveChapter} disabled={saving || !draftTitle.trim()} className="rounded-lg border border-cyan-500/60 bg-cyan-600/20 px-4 py-2 text-sm text-cyan-100 disabled:opacity-50">{saving ? 'Saving...' : 'Save Chapter'}</motion.button>
+                  <motion.button data-mascot-target="save-chapter" type="button" whileHover={{ scale: saving ? 1 : 1.03 }} whileTap={{ scale: saving ? 1 : 0.97 }} onClick={handleSaveChapter} disabled={saving || !draftTitle.trim()} className="rounded-lg border border-cyan-500/60 bg-cyan-600/20 px-4 py-2 text-sm text-cyan-100 disabled:opacity-50">{saving ? 'Saving...' : 'Save Chapter'}</motion.button>
                 </div>
               </>
             ) : (
@@ -433,7 +467,7 @@ function WritingPageInner() {
                   minHeightClassName="min-h-[18rem]"
                 />
               </div>
-              <motion.button type="submit" whileHover={{ scale: droppingNode ? 1 : 1.03 }} whileTap={{ scale: droppingNode ? 1 : 0.97 }} disabled={!projectId || !nodeDraft.name.trim() || droppingNode} className="w-full rounded-lg border border-cyan-500/60 bg-cyan-600/20 px-4 py-2 text-sm text-cyan-100 disabled:opacity-50">{droppingNode ? 'Dropping...' : 'Drop onto Continuum'}</motion.button>
+              <motion.button data-mascot-target="drop-node" type="submit" whileHover={{ scale: droppingNode ? 1 : 1.03 }} whileTap={{ scale: droppingNode ? 1 : 0.97 }} disabled={!projectId || !nodeDraft.name.trim() || droppingNode} className="w-full rounded-lg border border-cyan-500/60 bg-cyan-600/20 px-4 py-2 text-sm text-cyan-100 disabled:opacity-50">{droppingNode ? 'Dropping...' : 'Drop onto Continuum'}</motion.button>
             </form>
           </section>
           )}

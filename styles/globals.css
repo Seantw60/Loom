@@ -172,3 +172,48 @@ h3 {
   [style*="text-align: right"]   { text-align: right; }
   [style*="text-align: justify"] { text-align: justify; }
 }
+
+.pixelated {
+  image-rendering: pixelated;
+}
+
+.mascot-shell {
+  will-change: transform;
+}
+
+.mascot-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 54%;
+  height: 12px;
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  background: rgba(2, 6, 23, 0.45);
+  filter: blur(1px);
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.mascot-shadow-air {
+  transform: translateX(-50%) scale(0.72);
+  opacity: 0.66;
+}
+
+.mascot-poked {
+  animation: mascot-poke-pulse 680ms ease-out;
+}
+
+@keyframes mascot-poke-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.35);
+  }
+  45% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 12px rgba(34, 211, 238, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+  }
+}
